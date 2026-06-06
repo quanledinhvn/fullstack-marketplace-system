@@ -1,0 +1,73 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "3001:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/marketplace
+      REDIS_URL: redis://redis:6379
+      VERIFICATION_SERVICE_URL: http://mock:3001
+      API_URL: http://api:3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mock:
+        condition: service_started
+
+  mock:
+    build:
+      context: .
+      dockerfile: apps/mock-service/Dockerfile
+    ports:
+      - "3002:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3001
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: marketplace
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:

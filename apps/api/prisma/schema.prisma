@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  passwordHash String   @map("password_hash")
+  name      String
+  role      UserRole
+  status    UserStatus @default(ACTIVE)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  documents Document[]
+  auditLogs AuditLog[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  SELLER
+  ADMIN
+
+  @@map("user_role")
+}
+
+enum UserStatus {
+  ACTIVE
+  DELETED
+
+  @@map("user_status")
+}
+
+model Document {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  verificationId  String?  @map("verification_id")
+  jobId           String?  @map("job_id")
+  fileUrl         String   @map("file_url")
+  fileName        String   @map("file_name")
+  fileSize        Int      @map("file_size")
+  status          DocumentStatus @default(PROCESSING)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  auditLogs  AuditLog[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([verificationId])
+  @@index([userId, status])
+  @@map("documents")
+}
+
+enum DocumentStatus {
+  PROCESSING
+  VERIFIED
+  REJECTED
+  INCONCLUSIVE
+  ERROR
+
+  @@map("document_status")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  documentId String   @map("document_id")
+  actionType ActionType
+  actorId   String?  @map("actor_id")
+  actorType ActorType
+  prevStatus String?  @map("prev_status")
+  nextStatus String   @map("next_status")
+  reason    String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  actor    User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([documentId])
+  @@map("audit_logs")
+}
+
+enum ActionType {
+  AUTO
+  MANUAL
+
+  @@map("action_type")
+}
+
+enum ActorType {
+  SYSTEM
+  ADMIN
+  SELLER
+
+  @@map("actor_type")
+}

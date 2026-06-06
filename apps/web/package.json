@@ -1,0 +1,37 @@
+{
+	"name": "@app/web",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"test": "vitest run",
+		"test:watch": "vitest"
+	},
+	"dependencies": {
+		"@app/shared": "workspace:*",
+		"@tanstack/react-router": "^1.85.6",
+		"axios": "^1.7.7",
+		"react": "^19.2.7",
+		"react-dom": "^19.2.7",
+		"zod": "^4.4.3",
+		"zustand": "^5.0.0"
+	},
+	"devDependencies": {
+		"@testing-library/jest-dom": "^6.9.1",
+		"@testing-library/react": "^16.3.2",
+		"@testing-library/user-event": "^14.6.1",
+		"@types/node": "^22.10.0",
+		"@types/react": "^19.2.16",
+		"@types/react-dom": "^19.2.3",
+		"@vitejs/plugin-react": "^6.0.2",
+		"@vitest/ui": "^4.1.8",
+		"jsdom": "^29.1.1",
+		"typescript": "^5.9.3",
+		"vite": "^8.0.16",
+		"vitest": "^4.1.8"
+	}
+}

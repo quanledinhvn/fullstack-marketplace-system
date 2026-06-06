@@ -1,0 +1,19 @@
+docker compose -f docker-compose.db.yml up -d
+
+docker compose up -d
+
+docker compose down
+
+docker compose build api
+
+docker compose up api postgres redis mock
+
+moon run api:dev
+
+
+pnpm --filter api prisma:migrate
+pnpm --filter api prisma:seed
+
+cd apps/api && pnpm prisma migrate deploy
+cd apps/api && pnpm prisma db seed
+

@@ -1,0 +1,19 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: 'typescript'
+layer: 'library'
+
+tasks:
+  build:
+    command: 'tsc -p tsconfig.json'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig.json'
+    outputs:
+      - 'dist'
+
+  typecheck:
+    command: 'tsc -p tsconfig.json --noEmit'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig.json'

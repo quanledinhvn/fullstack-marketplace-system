@@ -1,0 +1,18 @@
+.env
+.env.*
+!.env.*.example
+.DS_Store
+
+# Node / Vite / Moon / Nest
+node_modules/
+.moon/cache/
+**/dist/
+**/.vite/
+*.tsbuildinfo
+
+# Tools / IDE / Scratch
+.agent/
+.claude/
+.scratch/
+.vscode/
+docs/

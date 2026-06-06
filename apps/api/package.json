@@ -1,0 +1,51 @@
+{
+	"name": "@app/api",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "nest start --watch",
+		"build": "nest build",
+		"start": "node dist/main.js",
+		"test": "jest",
+		"test:integration": "jest --config test/jest-e2e.json --runInBand",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"prisma:migrate": "prisma migrate dev",
+		"prisma:seed": "prisma db seed"
+	},
+	"dependencies": {
+		"@app/shared": "workspace:*",
+		"@nestjs/axios": "^4.0.1",
+		"@nestjs/bullmq": "^11.0.4",
+		"@nestjs/common": "^11.1.24",
+		"@nestjs/config": "^4.0.4",
+		"@nestjs/core": "^11.1.24",
+		"@nestjs/platform-express": "^11.1.24",
+		"@prisma/client": "^5.21.1",
+		"prisma": "^5.22.0",
+		"axios": "^1.7.7",
+		"bcrypt": "^5.1.1",
+		"bullmq": "^5.78.0",
+		"class-transformer": "^0.5.1",
+		"class-validator": "^0.15.1",
+		"reflect-metadata": "^0.2.2",
+		"rxjs": "^7.8.2"
+	},
+	"devDependencies": {
+		"@nestjs/cli": "^11.0.21",
+		"@nestjs/schematics": "^11.1.0",
+		"@nestjs/testing": "^11.1.24",
+		"@types/bcrypt": "^5.0.2",
+		"@types/express": "^5.0.0",
+		"@types/jest": "^30.0.0",
+		"@types/node": "^22.10.0",
+		"@types/supertest": "^6.0.2",
+		"jest": "^30.4.2",
+		"supertest": "^7.0.0",
+		"ts-jest": "^29.4.11",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.9.3"
+	},
+	"prisma": {
+		"seed": "ts-node prisma/seed.ts"
+	}
+}
