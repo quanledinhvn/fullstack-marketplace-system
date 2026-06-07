@@ -32,9 +32,9 @@ app.post('/verify', (req: Request, res: Response) => {
 
 	console.log(`[verify] documentId=${documentId} verificationId=${verificationId} callbackUrl=${callbackUrl}`);
 
-	const result = processAsync({ verificationId, documentId, callbackUrl });
+	processAsync({ verificationId, documentId, callbackUrl });
 
-	res.status(202).json({ verificationId, result });
+	res.status(202).json({ verificationId });
 });
 
 const PORT = process.env.PORT ?? 3010;

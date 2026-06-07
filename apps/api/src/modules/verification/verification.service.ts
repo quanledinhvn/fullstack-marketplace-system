@@ -26,9 +26,9 @@ export class VerificationService {
     this.callbackUrl = `${api}/internal/webhook`;
   }
 
-  async callMockService(documentId: string): Promise<{ verificationId: string; result: string }> {
+  async callMockService(documentId: string): Promise<{ verificationId: string }> {
     const res = await lastValueFrom(
-      this.http.post<{ verificationId: string; result: string }>(this.verifyUrl, {
+      this.http.post<{ verificationId: string }>(this.verifyUrl, {
         documentId,
         callbackUrl: this.callbackUrl,
       }, {
