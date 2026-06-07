@@ -6,7 +6,6 @@ interface Props {
 }
 
 const STATUS_LABEL: Record<DocumentStatus, string> = {
-  [DocumentStatus.PENDING]: 'Pending',
   [DocumentStatus.PROCESSING]: 'Processing',
   [DocumentStatus.VERIFIED]: 'Verified',
   [DocumentStatus.REJECTED]: 'Rejected',
@@ -15,7 +14,6 @@ const STATUS_LABEL: Record<DocumentStatus, string> = {
 };
 
 const STATUS_CLASS: Record<DocumentStatus, string> = {
-  [DocumentStatus.PENDING]: 'badge-pending',
   [DocumentStatus.PROCESSING]: 'badge-processing',
   [DocumentStatus.VERIFIED]: 'badge-verified',
   [DocumentStatus.REJECTED]: 'badge-rejected',

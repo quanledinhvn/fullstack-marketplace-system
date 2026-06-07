@@ -8,9 +8,13 @@ export interface UploadDocumentBody {
 }
 
 export async function listDocuments(): Promise<TDocumentResponse[]> {
-  return api.get('/documents');
+  const res = await api.get<any, any, any>('/documents');
+  if (!res.success) throw new Error(res.error);
+  return res.data;
 }
 
 export async function uploadDocument(body: UploadDocumentBody): Promise<TDocumentResponse> {
-  return api.post('/documents', body);
+  const res = await api.post<any, any, any>('/documents', body);
+  if (!res.success) throw new Error(res.error);
+  return res.data;
 }

@@ -9,7 +9,7 @@ const makeDoc = (overrides: Partial<TDocumentResponse>): TDocumentResponse => ({
   userId: 'u1',
   fileName: 'test.pdf',
   fileSize: 1024,
-  status: DocumentStatus.PENDING,
+  status: DocumentStatus.PROCESSING,
   verificationId: null,
   jobId: null,
   createdAt: new Date('2026-06-07'),

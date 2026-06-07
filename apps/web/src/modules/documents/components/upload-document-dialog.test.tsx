@@ -1,10 +1,10 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UploadDocumentDialog } from './upload-document-dialog';
 
-let onClose: ReturnType<typeof vi.fn>;
-let onSuccess: ReturnType<typeof vi.fn>;
+let onClose: () => void;
+let onSuccess: () => void;
 
 beforeEach(() => {
   onClose = vi.fn();

@@ -1,3 +1,4 @@
+import type { TAuthResponse } from '@app/shared';
 import { api } from '../../../lib/api';
 
 export interface LoginRequest {
@@ -5,15 +6,10 @@ export interface LoginRequest {
 	password: string;
 }
 
-export interface LoginResponse {
-	userId: string;
-	role: string;
-	name: string;
-	email: string;
-}
-
 export const authApi = {
-	login: (credentials: LoginRequest): Promise<LoginResponse> => {
-		return api.post('/auth/login', credentials);
+	login: async (credentials: LoginRequest): Promise<TAuthResponse> => {
+		const res = await api.post<any, any, any>('/auth/login', credentials);
+		if (!res.success) throw new Error(res.error);
+		return res.data;
 	},
 };

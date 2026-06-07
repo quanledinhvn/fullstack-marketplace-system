@@ -30,14 +30,16 @@ app.post('/verify', (req: Request, res: Response) => {
 
 	const verificationId = crypto.randomUUID();
 
-	console.log(`[verify] documentId=${documentId} verificationId=${verificationId} callbackUrl=${callbackUrl}`);
+	console.log(
+		`[verify] documentId=${documentId} verificationId=${verificationId} callbackUrl=${callbackUrl}`,
+	);
 
 	processAsync({ verificationId, documentId, callbackUrl });
 
 	res.status(202).json({ verificationId });
 });
 
-const PORT = process.env.PORT ?? 3010;
+const PORT = process.env.PORT ?? 3002;
 app.listen(PORT, () => {
 	console.log(`mock-service listening on port ${PORT}`);
 });

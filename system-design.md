@@ -22,22 +22,22 @@
 ## Non-Functional Requirements
 
 **Performance**
-- API response < 500ms 
-- Queue xử lý 100 jobs/phút
+- API response < 500ms
+- Queue processes 100 jobs/minute
 
 **Scalability**
-- Hệ thống phải xử lý được burst 5.000 sellers/tuần mà không drop jobs
+- System must handle burst of 5,000 sellers/week without dropping jobs
 
 **Reliability**
-- Idempotency: không gọi external service 2 lần cho cùng 1 tài liệu
+- Idempotency: never call external service twice for the same document
 
 **Security**
-- File upload phải validate type/size
-- Role-based access: seller chỉ thấy data của mình, admin thấy tất cả
-- Không leak internal error ra response
+- File upload must validate type/size
+- Role-based access: sellers see only their own data, admins see all
+- Never leak internal errors in responses
 
 **Observability**
-- Audit log đầy đủ cho mọi state transition
+- Full audit log for every state transition
 
 ---
 ## DB Schema
@@ -67,7 +67,7 @@
 | file_url        | varchar                                                 | NOT NULL                 |
 | file_name       | varchar                                                 | NOT NULL                 |
 | file_size       | integer                                                 | NOT NULL (bytes)         |
-| status          | enum(pending, processing, verified, rejected, inconclusive, error) | NOT NULL DEFAULT processing |
+| status          | enum(processing, verified, rejected, inconclusive, error) | NOT NULL DEFAULT processing |
 | created_at      | timestamp                                               | NOT NULL                 |
 | updated_at      | timestamp                                               | NOT NULL                 |
 
@@ -154,7 +154,7 @@ graph TD
 ### Auth
 | Method | Path        | Role | Description |
 |--------|-------------|------|-------------|
-| POST   | /auth/login | *    | Login, trả về JWT |
+| POST   | /auth/login | *    | Login |
 
 ### Seller
 | Method | Path               | Role   | Description             |
@@ -166,9 +166,9 @@ graph TD
 ### Admin
 | Method | Path                           | Role  | Description              |
 |--------|--------------------------------|-------|--------------------------|
-| GET    | /admin/documents               | admin | List all (filter status) — dùng ?status=error để xem lỗi |
+| GET    | /admin/documents               | admin | List all (filter status) |
 | GET    | /admin/documents/:id           | admin | Get document detail      |
-| GET    | /admin/documents/stats         | admin | Count theo status (error, inconclusive, ...) |
+| GET    | /admin/documents/stats         | admin | Count by status (error, inconclusive, ...) |
 | POST   | /admin/documents/:id/review    | admin | Resolve inconclusive     |
 | POST   | /admin/documents/:id/retry     | admin | Retry error              |
 | GET    | /admin/documents/:id/audit-logs| admin | Full audit history of a document |
@@ -176,7 +176,7 @@ graph TD
 ### Internal (server-to-server)
 | Method | Path               | Description                    |
 |--------|--------------------|--------------------------------|
-| POST   | /internal/webhook  | Callback từ mock service       |
+| POST   | /internal/webhook  | Callback from mock service     |
 
 ---
 
@@ -186,20 +186,20 @@ graph TD
 5,000 sellers upload
         │
         ▼
-  ┌───────────┐     5,000 jobs vào queue
+  ┌───────────┐    
   │   Queue   │
   │  (Redis)  │
   └───────────┘
         │
-        │ drain tối đa 100 jobs/min
+        │ drain  100 jobs/min
         ▼
-  Rate Limiter ──► ~50 phút để xử lý hết
+  Rate Limiter ──► ~50 minutes
         │
         ▼
-  External Service ($2/call) ──► ~$10,000 tổng chi phí
+  External Service ($2/call) ──► ~$10,000 
         │
-        ▼                           Seller thấy "Đang xác minh"
-  Result stored + notify seller      trong lúc chờ
+        ▼                           
+  Result stored + notify seller      
 ```
 
 ---
@@ -210,7 +210,7 @@ graph TD
 
 | Error | Cause | Action |
 |---|---|---|
-| 429 Too Many Req | BullMQ misconfigured / external bug | DELAY 60s, không tính attempt |
+| 429 Too Many Req | BullMQ misconfigured / external bug | DELAY 60s, does not count as attempt |
 | 5xx / Timeout / Network | External service down | Retry exponential backoff (30s → 60s → 120s → exhausted) |
 | Retries Exhausted | Persistent failure sau 4 attempts | status = ERROR, job → failed set (DLQ), notify admin |
 
@@ -224,8 +224,8 @@ Call External Service
       │
       ├── 2xx ──────────────► update status (verified/rejected/inconclusive)
       │
-      ├── 429 ──────────────► DELAY 60s, không tính attempt
-      │                       BullMQ tự resume
+      ├── 429 ──────────────► DELAY 60s, does not count as attempt
+      │                       BullMQ auto-resumes
       │
       ├── 5xx/timeout ──────► exponential backoff retry
       │                       attempt 1 → wait 30s
@@ -240,81 +240,3 @@ Call External Service
       │
       └── Unexpected ────────► same as 5xx
 ```
-
-### Admin Retry
-
-```
-Admin GET /admin/documents?status=error
-      │
-      ▼
-Admin POST /admin/documents/:id/retry
-      │
-      ▼
-API lookup jobId từ DB ──► job.retry() ──► reset attempt count
-      │
-      ▼
-status = PROCESSING ──► normal flow
-```
-
-### BullMQ Config
-
-```
-attempts: 4
-backoff:
-  type: exponential
-  delay: 30000        ← 30s base
-rateLimiter:
-  max: 100
-  duration: 60000     ← 100 jobs/min
-```
-
----
-
-## Idempotency
-
-### Layer 1 — Worker: trước khi gọi external service
-
-```
-Worker picks job (có thể là stalled job chạy lại)
-      │
-      ▼
-SELECT status FROM documents WHERE id = documentId
-      │
-      ├── status = PROCESSING ──► tiếp tục gọi external service
-      │
-      └── status ≠ PROCESSING ──► bỏ qua, return
-          (đã được xử lý bởi lần chạy trước)
-```
-
-### Layer 2 — Webhook: khi nhận kết quả từ mock service
-
-```
-POST /internal/webhook { verificationId, result }
-      │
-      ▼
-SELECT status FROM documents WHERE verification_id = verificationId
-      │
-      ├── status = PROCESSING ──► update status, insert audit_log, notify
-      │
-      └── status ≠ PROCESSING ──► return 200 OK, bỏ qua
-          (webhook gọi lại lần 2)
-```
-
-### Tại sao không cần unique constraint?
-
-```
-status = PROCESSING là guard duy nhất cần thiết:
-
-  - Stalled job chạy lại     ──► Layer 1 chặn trước khi gọi service
-  - Webhook duplicate        ──► Layer 2 chặn trước khi update DB
-  - Không cần DB constraint  ──► status transition đã đủ làm guard
-```
-
----
-
-## Question / Decision Log
-
-- **Seller re-upload?** → Only allowed when status is `rejected`. Not allowed for `verified` (avoid wasting $2/call) or `processing` (avoid race condition).
-- **PENDING state?** → Kept in DB enum for completeness but never used in normal flow. Document is created directly with `PROCESSING` status since upload and enqueue are always atomic within the same request. PENDING would only be meaningful if enqueue could be deferred — which is not the case.
-
-

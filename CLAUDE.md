@@ -6,13 +6,12 @@
 
 ## Project
 
-KVY Tech take-home: Document Verification Workflow for a marketplace
+Document Verification Workflow for a marketplace
 
 ### System Design & Scope
 
 **Core docs** (must read before coding):
 - `@docs/system-design.md` — DB schema, state machine, API endpoints, error handling, idempotency strategy
-- `@docs/kvy_tech.md` — requirements, scoring criteria, what to build, submission checklist
 
 **Implementation structure** (strict adherence required):
 - `@docs/api-impl-structure.md` — NestJS folder layout, layer responsibilities, auth strategy (header-based, no JWT)

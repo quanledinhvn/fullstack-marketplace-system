@@ -15,7 +15,7 @@ afterEach(() => vi.clearAllMocks());
 
 describe('useUploadDocument', () => {
   it('calls uploadDocument and then refresh on success', async () => {
-    const doc = { id: '1', fileName: 'a.pdf', status: 'PENDING' };
+    const doc = { id: '1', fileName: 'a.pdf', status: 'PROCESSING' };
     mockUpload.mockResolvedValueOnce(doc);
 
     const { result } = renderHook(() => useUploadDocument(mockRefresh));

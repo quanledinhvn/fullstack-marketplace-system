@@ -7,7 +7,6 @@ interface Props {
 
 const STATUS_OPTIONS: { value: string; label: string }[] = [
   { value: '', label: 'All' },
-  { value: DocumentStatus.PENDING, label: 'Pending' },
   { value: DocumentStatus.PROCESSING, label: 'Processing' },
   { value: DocumentStatus.VERIFIED, label: 'Verified' },
   { value: DocumentStatus.REJECTED, label: 'Rejected' },

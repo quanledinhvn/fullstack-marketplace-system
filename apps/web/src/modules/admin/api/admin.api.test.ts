@@ -9,13 +9,13 @@ vi.mock('@/lib/api', () => ({
 import { api } from '@/lib/api';
 import { listAllDocuments } from './admin.api';
 
-const mockApi = api as { get: ReturnType<typeof vi.fn> };
+const mockApi = api as unknown as { get: ReturnType<typeof vi.fn> };
 
 afterEach(() => vi.clearAllMocks());
 
 describe('listAllDocuments', () => {
   it('calls GET /admin/documents without filter', async () => {
-    const docs = [{ id: '1', fileName: 'a.pdf', status: 'pending' }];
+    const docs = [{ id: '1', fileName: 'a.pdf', status: 'processing' }];
     mockApi.get.mockResolvedValueOnce(docs);
 
     const result = await listAllDocuments();

@@ -25,7 +25,7 @@ describe('useDocuments', () => {
 
   it('exposes a refresh function that re-fetches', async () => {
     const docs = [{ id: '1', status: 'VERIFIED' }];
-    const updated = [{ id: '1', status: 'VERIFIED' }, { id: '2', status: 'PENDING' }];
+    const updated = [{ id: '1', status: 'VERIFIED' }, { id: '2', status: 'PROCESSING' }];
     mockList.mockResolvedValueOnce(docs).mockResolvedValueOnce(updated);
 
     const { result } = renderHook(() => useDocuments());

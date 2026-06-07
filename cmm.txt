@@ -18,7 +18,10 @@ cd apps/api && pnpm prisma migrate deploy
 cd apps/api && pnpm prisma db seed
 
 
-
 fullstack-marketplace-system-production.up.railway.app
 
 mock-service-production-3e6d.up.railway.app
+
+pnpm --filter api dev
+pnpm --filter web dev
+pnpm --filter mock-service dev

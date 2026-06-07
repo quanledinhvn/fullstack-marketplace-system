@@ -1,5 +1,4 @@
 export enum DocumentStatus {
-  PENDING = 'PENDING',
   PROCESSING = 'PROCESSING',
   VERIFIED = 'VERIFIED',
   REJECTED = 'REJECTED',

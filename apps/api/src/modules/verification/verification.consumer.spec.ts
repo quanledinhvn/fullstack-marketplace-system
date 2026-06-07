@@ -50,7 +50,7 @@ describe('VerificationConsumer', () => {
 
   describe('process()', () => {
     it('skips job if document status is not processing', async () => {
-      mockFindById.mockResolvedValueOnce({ id: 'doc-1', status: 'PENDING' });
+      mockFindById.mockResolvedValueOnce({ id: 'doc-1', status: 'VERIFIED' });
       const job = makeJob({ documentId: 'doc-1' });
 
       await consumer.process(job);
