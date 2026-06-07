@@ -86,6 +86,8 @@ const adminRoute = createRoute({
 	},
 });
 
+const adminRouteApi = getRouteApi('/admin/documents');
+
 const adminDocumentsRoute = createRoute({
 	getParentRoute: () => adminRoute,
 	path: '/admin/documents',
@@ -93,7 +95,6 @@ const adminDocumentsRoute = createRoute({
 		status: typeof search.status === 'string' ? search.status : undefined,
 	}),
 	component: function AdminDocumentsRoute() {
-		const adminRouteApi = getRouteApi('/admin/documents');
 		const { status } = adminRouteApi.useSearch();
 		const navigate = adminRouteApi.useNavigate();
 		const handleStatusChange = (s: string) => {
