@@ -42,7 +42,9 @@ export function processAsync(params: {
   documentId: string;
   callbackUrl: string;
 }): string {
-  const delayMs = randomInt(2000, 30000);
+  const minDelay = parseInt(process.env.MIN_DELAY_MS ?? '15000', 10);
+  const maxDelay = parseInt(process.env.MAX_DELAY_MS ?? '300000', 10);
+  const delayMs = randomInt(minDelay, maxDelay);
   const rand = Math.random() * 100;
   const result = rand < 40 ? 'VERIFIED' : rand < 70 ? 'REJECTED' : 'INCONCLUSIVE';
 

@@ -62,13 +62,9 @@ I assumed re-upload is allowed, only when status is `rejected`. New upload = new
 **Answer:**
 
 ```
-                    ┌─────────┐
-                    │ PENDING │ ◄── seller uploads
-                    └────┬────┘
-                         │ enqueue job
-                         ▼
                   ┌─────────────┐
-                  │  PROCESSING │ ◄── worker picks up job / admin retries
+                  │  PROCESSING │ ◄── seller uploads (created directly as PROCESSING + enqueue job)
+                  │             │ ◄── admin retry
                   └──────┬──────┘
        ┌─────────────────┼──────────────┬──────────────┐
        ▼                 ▼              ▼              ▼
@@ -86,7 +82,6 @@ Terminal states: VERIFIED, REJECTED
 ```
 
 **Guards:**
-- `PENDING → PROCESSING`: worker picks up the job
 - `PROCESSING → VERIFIED/REJECTED/INCONCLUSIVE`: webhook result received, status must be `PROCESSING` (idempotency)
 - `INCONCLUSIVE → VERIFIED/REJECTED`: admin role required
 - `ERROR → PROCESSING`: admin role required (retry)
