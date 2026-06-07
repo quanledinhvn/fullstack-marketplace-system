@@ -2,7 +2,6 @@ import {
 	createRootRoute,
 	createRoute,
 	createRouter,
-	getRouteApi,
 	redirect,
 } from '@tanstack/react-router';
 import { AuthLayout } from '../layouts/auth-layout';
@@ -86,8 +85,6 @@ const adminRoute = createRoute({
 	},
 });
 
-const adminRouteApi = getRouteApi('/admin/documents');
-
 const adminDocumentsRoute = createRoute({
 	getParentRoute: () => adminRoute,
 	path: '/admin/documents',
@@ -95,10 +92,10 @@ const adminDocumentsRoute = createRoute({
 		status: typeof search.status === 'string' ? search.status : undefined,
 	}),
 	component: function AdminDocumentsRoute() {
-		const { status } = adminRouteApi.useSearch();
-		const navigate = adminRouteApi.useNavigate();
+		const { status } = adminDocumentsRoute.useSearch();
+		const navigate = adminDocumentsRoute.useNavigate();
 		const handleStatusChange = (s: string) => {
-			void navigate({ search: { status: s || undefined } as any });
+			void navigate({ search: { status: s || undefined } });
 		};
 		return <AdminDocumentsPage status={status} onStatusChange={handleStatusChange} />;
 	},
