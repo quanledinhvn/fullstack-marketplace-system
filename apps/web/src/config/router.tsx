@@ -1,4 +1,10 @@
-import { RootRoute, Route, Router, redirect } from '@tanstack/react-router';
+import {
+	createRootRoute,
+	createRoute,
+	createRouter,
+	getRouteApi,
+	redirect,
+} from '@tanstack/react-router';
 import { AuthLayout } from '../layouts/auth-layout';
 import { DashboardLayout } from '../layouts/dashboard-layout';
 import { RootLayout } from '../layouts/root-layout';
@@ -7,11 +13,11 @@ import { useAuthStore } from '../modules/auth/stores/auth.store';
 import { AdminDocumentsPage } from '../modules/admin/components/admin-documents-page';
 import { SellerDocumentsPage } from '../modules/documents/components/seller-documents-page';
 
-const rootRoute = new RootRoute({
+const rootRoute = createRootRoute({
 	component: RootLayout,
 });
 
-const indexRoute = new Route({
+const indexRoute = createRoute({
 	getParentRoute: () => rootRoute,
 	path: '/',
 	beforeLoad: async () => {
@@ -28,7 +34,7 @@ const indexRoute = new Route({
 	component: () => null,
 });
 
-const authRoute = new Route({
+const authRoute = createRoute({
 	getParentRoute: () => rootRoute,
 	id: '_auth',
 	component: AuthLayout,
@@ -44,13 +50,13 @@ const authRoute = new Route({
 	},
 });
 
-const loginRoute = new Route({
+const loginRoute = createRoute({
 	getParentRoute: () => authRoute,
 	path: '/login',
 	component: LoginForm,
 });
 
-const sellerRoute = new Route({
+const sellerRoute = createRoute({
 	getParentRoute: () => rootRoute,
 	id: '_seller',
 	component: DashboardLayout,
@@ -62,13 +68,13 @@ const sellerRoute = new Route({
 	},
 });
 
-const sellerDocumentsRoute = new Route({
+const sellerDocumentsRoute = createRoute({
 	getParentRoute: () => sellerRoute,
 	path: '/seller/documents',
 	component: SellerDocumentsPage,
 });
 
-const adminRoute = new Route({
+const adminRoute = createRoute({
 	getParentRoute: () => rootRoute,
 	id: '_admin',
 	component: DashboardLayout,
@@ -80,17 +86,18 @@ const adminRoute = new Route({
 	},
 });
 
-const adminDocumentsRoute = new Route({
+const adminDocumentsRoute = createRoute({
 	getParentRoute: () => adminRoute,
 	path: '/admin/documents',
 	validateSearch: (search: Record<string, unknown>) => ({
 		status: typeof search.status === 'string' ? search.status : undefined,
 	}),
 	component: function AdminDocumentsRoute() {
-		const { status } = adminDocumentsRoute.useSearch();
-		const navigate = adminDocumentsRoute.useNavigate();
+		const adminRouteApi = getRouteApi('/admin/documents');
+		const { status } = adminRouteApi.useSearch();
+		const navigate = adminRouteApi.useNavigate();
 		const handleStatusChange = (s: string) => {
-			navigate({ search: (prev) => ({ ...prev, status: s || undefined }) });
+			void navigate({ search: { status: s || undefined } as any });
 		};
 		return <AdminDocumentsPage status={status} onStatusChange={handleStatusChange} />;
 	},
@@ -103,4 +110,4 @@ const routeTree = rootRoute.addChildren([
 	adminRoute.addChildren([adminDocumentsRoute]),
 ]);
 
-export const router = new Router({ routeTree });
+export const router = createRouter({ routeTree });
