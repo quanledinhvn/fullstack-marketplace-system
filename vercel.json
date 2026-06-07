@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": { "deploymentEnabled": false },
   "installCommand": "pnpm install --frozen-lockfile",
   "buildCommand": "pnpm --filter @app/shared build && pnpm --filter @app/web build",
   "outputDirectory": "apps/web/dist",
