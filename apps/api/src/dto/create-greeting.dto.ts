@@ -1,7 +1,6 @@
-import type { GreetingRequest } from '@app/shared';
 import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
-export class CreateGreetingDto implements GreetingRequest {
+export class CreateGreetingDto {
 	@IsString()
 	@IsNotEmpty()
 	@MaxLength(50)

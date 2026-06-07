@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import type { Document } from '@app/shared';
+import type { TDocumentResponse } from '@app/shared';
 import { DocumentStatus } from '@app/shared';
 import { DocumentsTable } from './documents-table';
 
-const makeDoc = (overrides: Partial<Document>): Document => ({
+const makeDoc = (overrides: Partial<TDocumentResponse>): TDocumentResponse => ({
   id: '1',
   userId: 'u1',
   fileName: 'test.pdf',

@@ -1,8 +1,8 @@
-import type { Document } from '@app/shared';
+import type { TDocumentResponse } from '@app/shared';
 import { DocumentStatus } from '@app/shared';
 
 interface Props {
-  documents: Document[];
+  documents: TDocumentResponse[];
 }
 
 const STATUS_LABEL: Record<DocumentStatus, string> = {

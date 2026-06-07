@@ -1,10 +1,8 @@
-import type { Document } from '@app/shared';
+import type { TAdminDocumentResponse } from '@app/shared';
 import { DocumentStatus } from '@app/shared';
 
-type AdminDocument = Document & { sellerEmail: string };
-
 interface Props {
-  documents: AdminDocument[];
+  documents: TAdminDocumentResponse[];
 }
 
 const STATUS_LABEL: Record<DocumentStatus, string> = {

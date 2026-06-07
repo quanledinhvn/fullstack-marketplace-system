@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import type { Document } from '@app/shared';
+import type { TAdminDocumentResponse } from '@app/shared';
 import { DocumentStatus } from '@app/shared';
 import { AdminDocumentsTable } from './admin-documents-table';
 
-const makeDoc = (overrides: Partial<Document & { sellerEmail: string }>): Document & { sellerEmail: string } => ({
+const makeDoc = (overrides: Partial<TAdminDocumentResponse>): TAdminDocumentResponse => ({
   id: '1',
   userId: 'u1',
   fileName: 'test.pdf',

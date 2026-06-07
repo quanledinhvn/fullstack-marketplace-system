@@ -1,6 +1,15 @@
-import type { ApiInfo, GreetingResponse } from '@app/shared';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+
+interface ApiInfo {
+	name: string;
+	version: string;
+	environment: string;
+}
+
+interface GreetingResponse {
+	message: string;
+}
 
 @Injectable()
 export class AppService {

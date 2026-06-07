@@ -1,7 +1,16 @@
-import type { ApiInfo, GreetingResponse } from '@app/shared';
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { CreateGreetingDto } from './dto/create-greeting.dto';
+
+interface ApiInfo {
+	name: string;
+	version: string;
+	environment: string;
+}
+
+interface GreetingResponse {
+	message: string;
+}
 
 @Controller()
 export class AppController {

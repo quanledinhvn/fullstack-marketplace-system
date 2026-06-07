@@ -1,9 +1,9 @@
-import type { Document } from '@app/shared';
+import type { TDocumentResponse } from '@app/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { listDocuments } from '../api/documents.api';
 
 export function useDocuments() {
-  const [documents, setDocuments] = useState<Document[]>([]);
+  const [documents, setDocuments] = useState<TDocumentResponse[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetch = useCallback(async () => {

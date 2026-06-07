@@ -1,6 +1,11 @@
-import type { HealthResponse } from '@app/shared';
 import { Controller, Get } from '@nestjs/common';
 import { Public } from '../common/decorators/public.decorator';
+
+interface HealthResponse {
+	status: string;
+	uptimeSeconds: number;
+	timestamp: string;
+}
 
 @Controller('health')
 export class HealthController {
