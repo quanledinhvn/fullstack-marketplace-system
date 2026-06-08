@@ -35,7 +35,7 @@ export class GlobalHandleExceptionFilter implements ExceptionFilter {
 		const status = appException.getStatus();
 
 		const logPayload = {
-			error: exception,
+			error: exception instanceof Error ? { message: exception.message, stack: exception.stack } : String(exception),
 			http: { status, method: req.method, url: req.url },
 		};
 

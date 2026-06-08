@@ -71,7 +71,7 @@ export class AppNotRouteFoundError extends AppException {
 }
 
 export class AppInternalServerError extends AppException {
-  constructor(message = 'Internal server error') {
+  constructor(message = 'Internal Server Error') {
     super(HttpStatus.INTERNAL_SERVER_ERROR, message);
   }
 }
