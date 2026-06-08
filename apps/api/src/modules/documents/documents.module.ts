@@ -8,11 +8,7 @@ import { DocumentsRepository } from './documents.repository';
 import { DocumentsService } from './documents.service';
 
 @Module({
-	imports: [
-		PrismaModule,
-		QueueModule,
-		BullModule.registerQueue({ name: VERIFICATION_QUEUE }),
-	],
+	imports: [PrismaModule, QueueModule, BullModule.registerQueue({ name: VERIFICATION_QUEUE })],
 	controllers: [DocumentsController],
 	providers: [DocumentsService, DocumentsRepository],
 	exports: [DocumentsService, DocumentsRepository],

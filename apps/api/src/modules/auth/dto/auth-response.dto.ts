@@ -1,16 +1,17 @@
-import { Expose } from 'class-transformer';
-import type { TAuthResponse } from '@app/shared';
+import { Exclude, Expose } from 'class-transformer';
+import type { IAuthResponse } from '@app/shared';
 
-export class AuthResponseDto implements TAuthResponse {
-  @Expose()
-  userId!: string;
+@Exclude()
+export class AuthResponseDto implements IAuthResponse {
+	@Expose()
+	userId!: string;
 
-  @Expose()
-  role!: 'seller' | 'admin';
+	@Expose()
+	role!: 'seller' | 'admin';
 
-  @Expose()
-  name!: string;
+	@Expose()
+	name!: string;
 
-  @Expose()
-  email!: string;
+	@Expose()
+	email!: string;
 }

@@ -12,9 +12,11 @@ export const api = axios.create({
 
 api.interceptors.request.use((config) => {
 	const user = useAuthStore.getState().user;
+
 	if (user?.userId) {
 		config.headers.Authorization = user.userId;
 	}
+
 	return config;
 });
 
@@ -23,8 +25,10 @@ api.interceptors.response.use(
 	(error) => {
 		if (error.response?.status === 401) {
 			useAuthStore.getState().clearUser();
+
 			window.location.href = '/login';
 		}
+
 		return Promise.reject(error);
 	},
 );

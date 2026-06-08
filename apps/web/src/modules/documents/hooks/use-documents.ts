@@ -1,28 +1,34 @@
-import type { TDocumentResponse } from '@app/shared';
+import type { IDocumentResponse } from '@app/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { listDocuments } from '../api/documents.api';
 
 export function useDocuments() {
-  const [documents, setDocuments] = useState<TDocumentResponse[]>([]);
-  const [loading, setLoading] = useState(false);
+	const [documents, setDocuments] = useState<IDocumentResponse[]>([]);
+	const [loading, setLoading] = useState(false);
 
-  const fetch = useCallback(async () => {
-    setLoading(true);
-    try {
-      const docs = await listDocuments();
-      setDocuments(docs);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+	const fetch = useCallback(async () => {
+		setLoading(true);
 
-  useEffect(() => {
-    let cancelled = false;
-    listDocuments().then((docs) => {
-      if (!cancelled) setDocuments(docs);
-    });
-    return () => { cancelled = true; };
-  }, []);
+		try {
+			const docs = await listDocuments();
 
-  return { documents, loading, refresh: fetch };
+			setDocuments(docs);
+		} finally {
+			setLoading(false);
+		}
+	}, []);
+
+	useEffect(() => {
+		let cancelled = false;
+
+		listDocuments().then((docs) => {
+			if (!cancelled) setDocuments(docs);
+		});
+
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
+	return { documents, loading, refresh: fetch };
 }

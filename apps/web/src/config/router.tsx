@@ -1,9 +1,4 @@
-import {
-	createRootRoute,
-	createRoute,
-	createRouter,
-	redirect,
-} from '@tanstack/react-router';
+import { createRootRoute, createRoute, createRouter, redirect } from '@tanstack/react-router';
 import { AuthLayout } from '../layouts/auth-layout';
 import { DashboardLayout } from '../layouts/dashboard-layout';
 import { RootLayout } from '../layouts/root-layout';
@@ -21,9 +16,11 @@ const indexRoute = createRoute({
 	path: '/',
 	beforeLoad: async () => {
 		const user = useAuthStore.getState().user;
+
 		if (!user) {
 			return redirect({ to: '/login' });
 		}
+
 		if (user.role === 'seller') {
 			return redirect({ to: '/seller/documents' });
 		} else if (user.role === 'admin') {
@@ -39,6 +36,7 @@ const authRoute = createRoute({
 	component: AuthLayout,
 	beforeLoad: async () => {
 		const user = useAuthStore.getState().user;
+
 		if (user) {
 			if (user.role === 'seller') {
 				return redirect({ to: '/seller/documents' });
@@ -61,6 +59,7 @@ const sellerRoute = createRoute({
 	component: DashboardLayout,
 	beforeLoad: async () => {
 		const user = useAuthStore.getState().user;
+
 		if (!user || user.role !== 'seller') {
 			return redirect({ to: '/login' });
 		}
@@ -79,6 +78,7 @@ const adminRoute = createRoute({
 	component: DashboardLayout,
 	beforeLoad: async () => {
 		const user = useAuthStore.getState().user;
+
 		if (!user || user.role !== 'admin') {
 			return redirect({ to: '/login' });
 		}
@@ -97,6 +97,7 @@ const adminDocumentsRoute = createRoute({
 		const handleStatusChange = (s: string) => {
 			void navigate({ search: { status: s || undefined } });
 		};
+
 		return <AdminDocumentsPage status={status} onStatusChange={handleStatusChange} />;
 	},
 });

@@ -9,131 +9,163 @@ const mockCreateAuditLog = jest.fn();
 const mockNotify = jest.fn();
 
 describe('WebhookService', () => {
-  let service: WebhookService;
+	let service: WebhookService;
 
-  beforeEach(async () => {
-    [mockFindByVerificationId, mockUpdateStatus, mockCreateAuditLog, mockNotify].forEach(m =>
-      m.mockReset(),
-    );
+	beforeEach(async () => {
+		[mockFindByVerificationId, mockUpdateStatus, mockCreateAuditLog, mockNotify].forEach((m) =>
+			m.mockReset(),
+		);
 
-    const module = await Test.createTestingModule({
-      providers: [
-        WebhookService,
-        {
-          provide: DocumentsRepository,
-          useValue: {
-            findByVerificationId: mockFindByVerificationId,
-            updateStatus: mockUpdateStatus,
-            createAuditLog: mockCreateAuditLog,
-          },
-        },
-        {
-          provide: NotificationsService,
-          useValue: { send: mockNotify },
-        },
-      ],
-    }).compile();
+		const module = await Test.createTestingModule({
+			providers: [
+				WebhookService,
+				{
+					provide: DocumentsRepository,
+					useValue: {
+						findByVerificationId: mockFindByVerificationId,
+						updateStatus: mockUpdateStatus,
+						createAuditLog: mockCreateAuditLog,
+					},
+				},
+				{
+					provide: NotificationsService,
+					useValue: { send: mockNotify },
+				},
+			],
+		}).compile();
 
-    service = module.get(WebhookService);
-  });
+		service = module.get(WebhookService);
+	});
 
-  describe('handleResult()', () => {
-    it('updates doc to VERIFIED and inserts audit log', async () => {
-      mockFindByVerificationId.mockResolvedValueOnce({
-        id: 'doc-1',
-        status: 'PROCESSING',
-        verificationId: 'vid-1',
-      });
+	describe('handleResult()', () => {
+		it('updates doc to VERIFIED and inserts audit log', async () => {
+			mockFindByVerificationId.mockResolvedValueOnce({
+				id: 'doc-1',
+				status: 'PROCESSING',
+				verificationId: 'vid-1',
+			});
 
-      await service.handleResult({ verificationId: 'vid-1', documentId: 'doc-1', result: 'VERIFIED' });
+			await service.handleResult({
+				verificationId: 'vid-1',
+				documentId: 'doc-1',
+				result: 'VERIFIED',
+			});
 
-      expect(mockUpdateStatus).toHaveBeenCalledWith('doc-1', { status: 'VERIFIED' });
-      expect(mockCreateAuditLog).toHaveBeenCalledWith({
-        documentId: 'doc-1',
-        actionType: 'AUTO',
-        actorType: 'SYSTEM',
-        prevStatus: 'PROCESSING',
-        nextStatus: 'VERIFIED',
-      });
-    });
+			expect(mockUpdateStatus).toHaveBeenCalledWith('doc-1', { status: 'VERIFIED' });
 
-    it('updates doc to REJECTED and inserts audit log', async () => {
-      mockFindByVerificationId.mockResolvedValueOnce({
-        id: 'doc-1',
-        status: 'PROCESSING',
-        verificationId: 'vid-1',
-      });
+			expect(mockCreateAuditLog).toHaveBeenCalledWith({
+				documentId: 'doc-1',
+				actionType: 'AUTO',
+				actorType: 'SYSTEM',
+				prevStatus: 'PROCESSING',
+				nextStatus: 'VERIFIED',
+			});
+		});
 
-      await service.handleResult({ verificationId: 'vid-1', documentId: 'doc-1', result: 'REJECTED' });
+		it('updates doc to REJECTED and inserts audit log', async () => {
+			mockFindByVerificationId.mockResolvedValueOnce({
+				id: 'doc-1',
+				status: 'PROCESSING',
+				verificationId: 'vid-1',
+			});
 
-      expect(mockUpdateStatus).toHaveBeenCalledWith('doc-1', { status: 'REJECTED' });
-      expect(mockCreateAuditLog).toHaveBeenCalledWith(
-        expect.objectContaining({ nextStatus: 'REJECTED', prevStatus: 'PROCESSING' }),
-      );
-    });
+			await service.handleResult({
+				verificationId: 'vid-1',
+				documentId: 'doc-1',
+				result: 'REJECTED',
+			});
 
-    it('updates doc to INCONCLUSIVE and inserts audit log', async () => {
-      mockFindByVerificationId.mockResolvedValueOnce({
-        id: 'doc-1',
-        status: 'PROCESSING',
-        verificationId: 'vid-1',
-      });
+			expect(mockUpdateStatus).toHaveBeenCalledWith('doc-1', { status: 'REJECTED' });
 
-      await service.handleResult({ verificationId: 'vid-1', documentId: 'doc-1', result: 'INCONCLUSIVE' });
+			expect(mockCreateAuditLog).toHaveBeenCalledWith(
+				expect.objectContaining({ nextStatus: 'REJECTED', prevStatus: 'PROCESSING' }),
+			);
+		});
 
-      expect(mockUpdateStatus).toHaveBeenCalledWith('doc-1', { status: 'INCONCLUSIVE' });
-      expect(mockCreateAuditLog).toHaveBeenCalledWith(
-        expect.objectContaining({ nextStatus: 'INCONCLUSIVE' }),
-      );
-    });
+		it('updates doc to INCONCLUSIVE and inserts audit log', async () => {
+			mockFindByVerificationId.mockResolvedValueOnce({
+				id: 'doc-1',
+				status: 'PROCESSING',
+				verificationId: 'vid-1',
+			});
 
-    it('is idempotent — skips mutation if doc is not PROCESSING', async () => {
-      mockFindByVerificationId.mockResolvedValueOnce({
-        id: 'doc-1',
-        status: 'VERIFIED',
-        verificationId: 'vid-1',
-      });
+			await service.handleResult({
+				verificationId: 'vid-1',
+				documentId: 'doc-1',
+				result: 'INCONCLUSIVE',
+			});
 
-      await service.handleResult({ verificationId: 'vid-1', documentId: 'doc-1', result: 'VERIFIED' });
+			expect(mockUpdateStatus).toHaveBeenCalledWith('doc-1', { status: 'INCONCLUSIVE' });
 
-      expect(mockUpdateStatus).not.toHaveBeenCalled();
-      expect(mockCreateAuditLog).not.toHaveBeenCalled();
-    });
+			expect(mockCreateAuditLog).toHaveBeenCalledWith(
+				expect.objectContaining({ nextStatus: 'INCONCLUSIVE' }),
+			);
+		});
 
-    it('sends notification for verified', async () => {
-      mockFindByVerificationId.mockResolvedValueOnce({
-        id: 'doc-1',
-        status: 'PROCESSING',
-        verificationId: 'vid-1',
-      });
+		it('is idempotent — skips mutation if doc is not PROCESSING', async () => {
+			mockFindByVerificationId.mockResolvedValueOnce({
+				id: 'doc-1',
+				status: 'VERIFIED',
+				verificationId: 'vid-1',
+			});
 
-      await service.handleResult({ verificationId: 'vid-1', documentId: 'doc-1', result: 'VERIFIED' });
+			await service.handleResult({
+				verificationId: 'vid-1',
+				documentId: 'doc-1',
+				result: 'VERIFIED',
+			});
 
-      expect(mockNotify).toHaveBeenCalledWith('doc-1', 'VERIFIED');
-    });
+			expect(mockUpdateStatus).not.toHaveBeenCalled();
 
-    it('sends notification for rejected', async () => {
-      mockFindByVerificationId.mockResolvedValueOnce({
-        id: 'doc-1',
-        status: 'PROCESSING',
-        verificationId: 'vid-1',
-      });
+			expect(mockCreateAuditLog).not.toHaveBeenCalled();
+		});
 
-      await service.handleResult({ verificationId: 'vid-1', documentId: 'doc-1', result: 'REJECTED' });
+		it('sends notification for verified', async () => {
+			mockFindByVerificationId.mockResolvedValueOnce({
+				id: 'doc-1',
+				status: 'PROCESSING',
+				verificationId: 'vid-1',
+			});
 
-      expect(mockNotify).toHaveBeenCalledWith('doc-1', 'REJECTED');
-    });
+			await service.handleResult({
+				verificationId: 'vid-1',
+				documentId: 'doc-1',
+				result: 'VERIFIED',
+			});
 
-    it('does NOT send notification for inconclusive', async () => {
-      mockFindByVerificationId.mockResolvedValueOnce({
-        id: 'doc-1',
-        status: 'PROCESSING',
-        verificationId: 'vid-1',
-      });
+			expect(mockNotify).toHaveBeenCalledWith('doc-1', 'VERIFIED');
+		});
 
-      await service.handleResult({ verificationId: 'vid-1', documentId: 'doc-1', result: 'INCONCLUSIVE' });
+		it('sends notification for rejected', async () => {
+			mockFindByVerificationId.mockResolvedValueOnce({
+				id: 'doc-1',
+				status: 'PROCESSING',
+				verificationId: 'vid-1',
+			});
 
-      expect(mockNotify).not.toHaveBeenCalled();
-    });
-  });
+			await service.handleResult({
+				verificationId: 'vid-1',
+				documentId: 'doc-1',
+				result: 'REJECTED',
+			});
+
+			expect(mockNotify).toHaveBeenCalledWith('doc-1', 'REJECTED');
+		});
+
+		it('does NOT send notification for inconclusive', async () => {
+			mockFindByVerificationId.mockResolvedValueOnce({
+				id: 'doc-1',
+				status: 'PROCESSING',
+				verificationId: 'vid-1',
+			});
+
+			await service.handleResult({
+				verificationId: 'vid-1',
+				documentId: 'doc-1',
+				result: 'INCONCLUSIVE',
+			});
+
+			expect(mockNotify).not.toHaveBeenCalled();
+		});
+	});
 });

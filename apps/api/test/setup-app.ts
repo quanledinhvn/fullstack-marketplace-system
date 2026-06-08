@@ -32,6 +32,7 @@ beforeAll(async () => {
 	testApp.setGlobalPrefix('api');
 
 	await testApp.init();
+
 	await testApp.listen(0);
 
 	useContainer(testApp.select(AppModule), {

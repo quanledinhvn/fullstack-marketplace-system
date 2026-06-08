@@ -7,6 +7,7 @@ export function DashboardLayout() {
 
 	const handleLogout = () => {
 		clearUser();
+
 		window.location.href = '/login';
 	};
 

@@ -1,6 +1,7 @@
 # CLAUDE.md
 
 ## Communication
+
 - Call me Ryan in every response, any language.
 - Reporting: extremely concise; sacrifice grammar for concision.
 
@@ -11,16 +12,24 @@ Document Verification Workflow for a marketplace
 ### System Design & Scope
 
 **Core docs** (must read before coding):
+
 - `@docs/system-design.md` — DB schema, state machine, API endpoints, error handling, idempotency strategy
 
 **Implementation structure** (strict adherence required):
+
 - `@docs/api-impl-structure.md` — NestJS folder layout, layer responsibilities, auth strategy (header-based, no JWT)
 - `@docs/web-impl-structure.md` — React/Vite structure, modules, routes, stores, API client
 
 **Prototypes** (reference when coding):
+
 - `docs/prototypes/` — reference UI/UX designs; code must follow these
 
+**Code style** (strict adherence required):
+
+- `@docs/code-style.md`
+
 ### Build Decisions
+
 - Backend: NestJS + Prisma + PostgreSQL + BullMQ
 - Frontend: React + Vite + TanStack Router + shadcn/ui + Zustand
 

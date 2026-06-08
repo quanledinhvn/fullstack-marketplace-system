@@ -9,14 +9,14 @@ import { VerificationConsumer } from './verification.consumer';
 import { VerificationService } from './verification.service';
 
 @Module({
-  imports: [
-    ConfigModule,
-    PrismaModule,
-    DocumentsModule,
-    HttpModule,
-    BullModule.registerQueue({ name: VERIFICATION_QUEUE }),
-  ],
-  providers: [VerificationService, VerificationConsumer],
-  exports: [VerificationService],
+	imports: [
+		ConfigModule,
+		PrismaModule,
+		DocumentsModule,
+		HttpModule,
+		BullModule.registerQueue({ name: VERIFICATION_QUEUE }),
+	],
+	providers: [VerificationService, VerificationConsumer],
+	exports: [VerificationService],
 })
 export class VerificationModule {}

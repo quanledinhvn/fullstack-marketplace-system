@@ -26,8 +26,9 @@ export class DocumentsService {
 			fileUrl: `stub://${dto.fileName}`,
 			status: DocumentStatus.PROCESSING,
 		});
-		
+
 		this.logger.log(`[publish] verify job documentId=${doc.id} userId=${userId}`);
+
 		const job = await this.verificationQueue.add(
 			'verify',
 			{ documentId: doc.id },
@@ -36,6 +37,7 @@ export class DocumentsService {
 				backoff: { type: 'exponential', delay: 30_000 },
 			},
 		);
+
 		this.logger.log(`[published] jobId=${job.id} documentId=${doc.id}`);
 
 		await this.repo.updateJobId(doc.id, String(job.id));
@@ -46,6 +48,7 @@ export class DocumentsService {
 	async list(userId: string, query: DocumentQueryDto): Promise<Document[]> {
 		const page = query.page ?? 1;
 		const limit = query.limit ?? 20;
+
 		return this.repo.findAllByUser(userId, {
 			status: query.status as DocumentStatus | undefined,
 			skip: (page - 1) * limit,
@@ -55,8 +58,11 @@ export class DocumentsService {
 
 	async findOne(userId: string, id: string): Promise<Document> {
 		const doc = await this.repo.findById(id);
+
 		if (!doc) throw new AppNotFoundException('Document not found');
+
 		if (doc.userId !== userId) throw new AppNotAllowedException('Access denied');
+
 		return doc;
 	}
 }

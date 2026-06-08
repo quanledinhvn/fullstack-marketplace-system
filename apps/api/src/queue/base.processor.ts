@@ -47,11 +47,13 @@ export abstract class BaseProcessor<T = unknown, R = unknown> extends WorkerHost
 	): never {
 		if (err instanceof AppException && err.getStatus() < 500) {
 			const message = err.message;
+
 			this.logger.warn('Job failed with business error (no retry)', {
 				...meta,
 				error: message,
 				status: err.getStatus(),
 			});
+
 			throw new UnrecoverableError(message);
 		}
 
@@ -60,6 +62,7 @@ export abstract class BaseProcessor<T = unknown, R = unknown> extends WorkerHost
 			error: err instanceof Error ? err.message : String(err),
 			stack: err instanceof Error ? err.stack : undefined,
 		});
+
 		throw err;
 	}
 }

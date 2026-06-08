@@ -1,8 +1,4 @@
-import {
-	type CanActivate,
-	type ExecutionContext,
-	Injectable,
-} from '@nestjs/common';
+import { type CanActivate, type ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../../database/prisma.service';
 import { PUBLIC_KEY } from '../decorators';
@@ -33,13 +29,14 @@ export class UserIdGuard implements CanActivate {
 		}
 
 		const userId = authHeader.trim();
+
 		if (!userId) {
 			throw new AppUnauthorizedException('Invalid Authorization header');
 		}
 
-		const user = await (this.prisma.user.findUnique({
+		const user = await this.prisma.user.findUnique({
 			where: { id: userId },
-		}) as any);
+		});
 
 		if (!user) {
 			throw new AppUnauthorizedException('User not found');

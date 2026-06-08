@@ -5,12 +5,12 @@ import { WebhookService } from './webhook.service';
 
 @Controller('internal')
 export class WebhookController {
-  constructor(private readonly webhookService: WebhookService) {}
+	constructor(private readonly webhookService: WebhookService) {}
 
-  @Post('webhook')
-  @Public()
-  @HttpCode(200)
-  handleWebhook(@Body() dto: WebhookResultDto) {
-    return this.webhookService.handleResult(dto);
-  }
+	@Post('webhook')
+	@Public()
+	@HttpCode(200)
+	handleWebhook(@Body() dto: WebhookResultDto) {
+		return this.webhookService.handleResult(dto);
+	}
 }

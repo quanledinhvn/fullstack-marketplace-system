@@ -4,10 +4,22 @@ import tseslint from 'typescript-eslint';
 
 const baseRules = {
 	'prefer-const': 'error',
-	'@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+	'@typescript-eslint/no-unused-vars': [
+		'error',
+		{ argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+	],
 	'@typescript-eslint/no-explicit-any': 'warn',
 	'@typescript-eslint/no-non-null-assertion': 'warn',
 	'@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
+	'padding-line-between-statements': [
+		'error',
+		// All statements must be separated by a blank line
+		{ blankLine: 'always', prev: '*', next: '*' },
+		// Exceptions: related/same-kind statements may stay together
+		{ blankLine: 'any', prev: 'import', next: 'import' },
+		{ blankLine: 'any', prev: ['const', 'let', 'var'], next: ['const', 'let', 'var'] },
+		{ blankLine: 'any', prev: 'export', next: 'export' },
+	],
 };
 
 export default tseslint.config(

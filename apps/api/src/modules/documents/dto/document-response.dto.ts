@@ -1,8 +1,9 @@
-import { Expose } from 'class-transformer';
-import type { TDocumentResponse } from '@app/shared';
+import { Exclude, Expose } from 'class-transformer';
+import type { IDocumentResponse } from '@app/shared';
 import { DocumentStatus } from '@app/shared';
 
-export class DocumentResponseDto implements TDocumentResponse {
+@Exclude()
+export class DocumentResponseDto implements IDocumentResponse {
 	@Expose()
 	id!: string;
 

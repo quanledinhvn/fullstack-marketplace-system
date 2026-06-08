@@ -1,45 +1,48 @@
 import { Test } from '@nestjs/testing';
+import { DocumentStatus } from '@prisma/client';
 import { AdminService } from './admin.service';
 import { DocumentsRepository } from '../documents/documents.repository';
 
 const mockFindAll = jest.fn();
 
 describe('AdminService', () => {
-  let service: AdminService;
+	let service: AdminService;
 
-  beforeEach(async () => {
-    mockFindAll.mockReset();
+	beforeEach(async () => {
+		mockFindAll.mockReset();
 
-    const module = await Test.createTestingModule({
-      providers: [
-        AdminService,
-        {
-          provide: DocumentsRepository,
-          useValue: { findAll: mockFindAll },
-        },
-      ],
-    }).compile();
+		const module = await Test.createTestingModule({
+			providers: [
+				AdminService,
+				{
+					provide: DocumentsRepository,
+					useValue: { findAll: mockFindAll },
+				},
+			],
+		}).compile();
 
-    service = module.get(AdminService);
-  });
+		service = module.get(AdminService);
+	});
 
-  describe('listAll()', () => {
-    it('returns all documents without filter', async () => {
-      const docs = [{ id: 'd1' }, { id: 'd2' }];
-      mockFindAll.mockResolvedValueOnce(docs);
+	describe('listAll()', () => {
+		it('returns all documents without filter', async () => {
+			const docs = [{ id: 'd1' }, { id: 'd2' }];
 
-      const result = await service.listAll({ page: 1, limit: 20 });
+			mockFindAll.mockResolvedValueOnce(docs);
 
-      expect(result).toEqual(docs);
-      expect(mockFindAll).toHaveBeenCalledWith({ skip: 0, take: 20, status: undefined });
-    });
+			const result = await service.listAll({ page: 1, limit: 20 });
 
-    it('passes status filter through', async () => {
-      mockFindAll.mockResolvedValueOnce([]);
+			expect(result).toEqual(docs);
 
-      await service.listAll({ page: 1, limit: 10, status: 'ERROR' as any });
+			expect(mockFindAll).toHaveBeenCalledWith({ skip: 0, take: 20, status: undefined });
+		});
 
-      expect(mockFindAll).toHaveBeenCalledWith({ skip: 0, take: 10, status: 'ERROR' });
-    });
-  });
+		it('passes status filter through', async () => {
+			mockFindAll.mockResolvedValueOnce([]);
+
+			await service.listAll({ page: 1, limit: 10, status: DocumentStatus.ERROR });
+
+			expect(mockFindAll).toHaveBeenCalledWith({ skip: 0, take: 10, status: 'ERROR' });
+		});
+	});
 });

@@ -1,22 +1,37 @@
-import type { TAdminDocumentResponse } from '@app/shared';
-import { useEffect, useState } from 'react';
+import type { IAdminDocumentResponse } from '@app/shared';
+import { useEffect, useReducer } from 'react';
 import { listAllDocuments } from '../api/admin.api';
 
+type State = { documents: IAdminDocumentResponse[]; loading: boolean };
+
+type Action = { type: 'loading' } | { type: 'loaded'; documents: IAdminDocumentResponse[] };
+
+function reducer(state: State, action: Action): State {
+	switch (action.type) {
+		case 'loading':
+			return { ...state, loading: true };
+
+		case 'loaded':
+			return { documents: action.documents, loading: false };
+	}
+}
+
 export function useAdminDocuments(status?: string) {
-  const [documents, setDocuments] = useState<TAdminDocumentResponse[]>([]);
-  const [loading, setLoading] = useState(false);
+	const [state, dispatch] = useReducer(reducer, { documents: [], loading: false });
 
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    listAllDocuments(status).then((docs) => {
-      if (!cancelled) {
-        setDocuments(docs);
-        setLoading(false);
-      }
-    });
-    return () => { cancelled = true; };
-  }, [status]);
+	useEffect(() => {
+		let cancelled = false;
 
-  return { documents, loading };
+		dispatch({ type: 'loading' });
+
+		listAllDocuments(status).then((docs) => {
+			if (!cancelled) dispatch({ type: 'loaded', documents: docs });
+		});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [status]);
+
+	return state;
 }

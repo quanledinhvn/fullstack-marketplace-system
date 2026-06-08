@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { authApi } from '../api/auth.api';
@@ -13,11 +14,14 @@ export function LoginForm() {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+
 		setLoading(true);
+
 		setError('');
 
 		try {
 			const response = await authApi.login({ email, password });
+
 			setUser({
 				userId: response.userId,
 				role: response.role as 'seller' | 'admin',
@@ -30,8 +34,12 @@ export function LoginForm() {
 			} else if (response.role === 'admin') {
 				await navigate({ to: '/admin/documents' });
 			}
-		} catch (err: any) {
-			setError(err.response?.data?.message || 'Invalid email or password');
+		} catch (err: unknown) {
+			const message = isAxiosError(err)
+				? (err.response?.data as { message?: string })?.message
+				: undefined;
+
+			setError(message || 'Invalid email or password');
 		} finally {
 			setLoading(false);
 		}
@@ -48,7 +56,6 @@ export function LoginForm() {
 					<input
 						id="email"
 						type="email"
-
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
 						disabled={loading}
@@ -60,7 +67,6 @@ export function LoginForm() {
 					<input
 						id="password"
 						type="password"
-
 						value={password}
 						onChange={(e) => setPassword(e.target.value)}
 						disabled={loading}

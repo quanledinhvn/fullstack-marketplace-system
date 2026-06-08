@@ -5,6 +5,7 @@ import { tryConsume } from './rate-limiter';
 import { processAsync } from './processor';
 
 const app = express();
+
 app.use(express.json());
 
 app.get('/health', (_req: Request, res: Response) => {
@@ -19,12 +20,15 @@ app.post('/verify', (req: Request, res: Response) => {
 
 	if (!documentId || !callbackUrl) {
 		res.status(400).json({ error: 'documentId and callbackUrl are required' });
+
 		return;
 	}
 
 	const check = tryConsume();
+
 	if (!check.allowed) {
 		res.status(429).json({ error: 'Rate limit exceeded', retryAfter: check.retryAfter });
+
 		return;
 	}
 
@@ -40,6 +44,7 @@ app.post('/verify', (req: Request, res: Response) => {
 });
 
 const PORT = process.env.PORT ?? 3002;
+
 app.listen(PORT, () => {
 	console.log(`mock-service listening on port ${PORT}`);
 });

@@ -11,7 +11,10 @@ import {
 
 @Catch()
 export class GlobalHandleExceptionFilter implements ExceptionFilter {
-	constructor(@Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger) {}
+	constructor(
+		@Inject(WINSTON_MODULE_PROVIDER)
+		private readonly logger: Logger,
+	) {}
 
 	catch(exception: unknown, host: ArgumentsHost) {
 		const ctx = host.switchToHttp();
@@ -27,7 +30,9 @@ export class GlobalHandleExceptionFilter implements ExceptionFilter {
 			appException = new AppNotRouteFoundError();
 		} else {
 			const stack = exception instanceof Error ? exception.stack : String(exception);
+
 			extraData = process.env.ENABLE_VERBOSE_ERR_RESPONSE === 'true' ? stack : undefined;
+
 			appException = new AppInternalServerError();
 		}
 
@@ -35,7 +40,10 @@ export class GlobalHandleExceptionFilter implements ExceptionFilter {
 		const status = appException.getStatus();
 
 		const logPayload = {
-			error: exception instanceof Error ? { message: exception.message, stack: exception.stack } : String(exception),
+			error:
+				exception instanceof Error
+					? { message: exception.message, stack: exception.stack }
+					: String(exception),
 			http: { status, method: req.method, url: req.url },
 		};
 

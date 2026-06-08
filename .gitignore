@@ -11,8 +11,8 @@ node_modules/
 *.tsbuildinfo
 
 # Tools / IDE / Scratch
-.agents/
-.claude/
-.scratch/
-.vscode/
-docs/
+#.agents/
+#.claude/
+#.scratch/
+#.vscode/
+#docs/

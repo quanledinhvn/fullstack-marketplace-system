@@ -60,6 +60,7 @@ export class DocumentsRepository {
 			take: opts.take,
 			include: { user: { select: { email: true } } },
 		});
+
 		return docs.map(({ user, ...doc }) => ({ ...doc, sellerEmail: user.email }));
 	}
 

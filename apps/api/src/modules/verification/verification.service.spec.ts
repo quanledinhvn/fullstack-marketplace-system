@@ -2,80 +2,89 @@ import { Test } from '@nestjs/testing';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { of } from 'rxjs';
-import type { AxiosResponse } from 'axios';
+import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { VerificationService, RateLimitError, ServiceError } from './verification.service';
 
 const mockPost = jest.fn();
 
 describe('VerificationService', () => {
-  let service: VerificationService;
+	let service: VerificationService;
 
-  beforeEach(async () => {
-    mockPost.mockReset();
-    const module = await Test.createTestingModule({
-      providers: [
-        VerificationService,
-        {
-          provide: ConfigService,
-          useValue: {
-            get: (key: string, fallback?: string) => {
-              if (key === 'VERIFICATION_SERVICE_URL') return 'http://mock-verify:3001';
-              if (key === 'API_URL') return 'http://api:3000';
-              return fallback;
-            },
-          },
-        },
-        {
-          provide: HttpService,
-          useValue: { post: mockPost },
-        },
-      ],
-    }).compile();
-    service = module.get(VerificationService);
-  });
+	beforeEach(async () => {
+		mockPost.mockReset();
 
-  it('returns verificationId when mock service responds 202', async () => {
-    const axiosResponse: AxiosResponse = {
-      status: 202,
-      data: { verificationId: 'vid-123' },
-      statusText: 'Accepted',
-      headers: {},
-      config: {} as any,
-    };
-    mockPost.mockReturnValueOnce(of(axiosResponse));
+		const module = await Test.createTestingModule({
+			providers: [
+				VerificationService,
+				{
+					provide: ConfigService,
+					useValue: {
+						get: (key: string, fallback?: string) => {
+							if (key === 'VERIFICATION_SERVICE_URL') return 'http://mock-verify:3001';
 
-    const result = await service.callMockService('doc-1');
-    expect(result).toEqual({ verificationId: 'vid-123' });
-    expect(mockPost).toHaveBeenCalledWith(
-      'http://mock-verify:3001/verify',
-      { documentId: 'doc-1', callbackUrl: 'http://api:3000/internal/webhook' },
-      expect.objectContaining({ validateStatus: expect.any(Function) }),
-    );
-  });
+							if (key === 'API_URL') return 'http://api:3000';
 
-  it('throws RateLimitError on 429', async () => {
-    const axiosResponse: AxiosResponse = {
-      status: 429,
-      data: {},
-      statusText: 'Too Many Requests',
-      headers: {},
-      config: {} as any,
-    };
-    mockPost.mockReturnValueOnce(of(axiosResponse));
+							return fallback;
+						},
+					},
+				},
+				{
+					provide: HttpService,
+					useValue: { post: mockPost },
+				},
+			],
+		}).compile();
 
-    await expect(service.callMockService('doc-1')).rejects.toThrow(RateLimitError);
-  });
+		service = module.get(VerificationService);
+	});
 
-  it('throws ServiceError on 5xx response', async () => {
-    const axiosResponse: AxiosResponse = {
-      status: 503,
-      data: {},
-      statusText: 'Service Unavailable',
-      headers: {},
-      config: {} as any,
-    };
-    mockPost.mockReturnValueOnce(of(axiosResponse));
+	it('returns verificationId when mock service responds 202', async () => {
+		const axiosResponse: AxiosResponse = {
+			status: 202,
+			data: { verificationId: 'vid-123' },
+			statusText: 'Accepted',
+			headers: {},
+			config: {} as InternalAxiosRequestConfig,
+		};
 
-    await expect(service.callMockService('doc-1')).rejects.toThrow(ServiceError);
-  });
+		mockPost.mockReturnValueOnce(of(axiosResponse));
+
+		const result = await service.callMockService('doc-1');
+
+		expect(result).toEqual({ verificationId: 'vid-123' });
+
+		expect(mockPost).toHaveBeenCalledWith(
+			'http://mock-verify:3001/verify',
+			{ documentId: 'doc-1', callbackUrl: 'http://api:3000/api/internal/webhook' },
+			expect.objectContaining({ validateStatus: expect.any(Function) }),
+		);
+	});
+
+	it('throws RateLimitError on 429', async () => {
+		const axiosResponse: AxiosResponse = {
+			status: 429,
+			data: {},
+			statusText: 'Too Many Requests',
+			headers: {},
+			config: {} as InternalAxiosRequestConfig,
+		};
+
+		mockPost.mockReturnValueOnce(of(axiosResponse));
+
+		await expect(service.callMockService('doc-1')).rejects.toThrow(RateLimitError);
+	});
+
+	it('throws ServiceError on 5xx response', async () => {
+		const axiosResponse: AxiosResponse = {
+			status: 503,
+			data: {},
+			statusText: 'Service Unavailable',
+			headers: {},
+			config: {} as InternalAxiosRequestConfig,
+		};
+
+		mockPost.mockReturnValueOnce(of(axiosResponse));
+
+		await expect(service.callMockService('doc-1')).rejects.toThrow(ServiceError);
+	});
 });

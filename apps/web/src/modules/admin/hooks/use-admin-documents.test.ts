@@ -2,7 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../api/admin.api', () => ({
-  listAllDocuments: vi.fn(),
+	listAllDocuments: vi.fn(),
 }));
 
 import { listAllDocuments } from '../api/admin.api';
@@ -13,31 +13,39 @@ const mockList = listAllDocuments as ReturnType<typeof vi.fn>;
 afterEach(() => vi.clearAllMocks());
 
 describe('useAdminDocuments', () => {
-  it('fetches all documents on mount', async () => {
-    const docs = [{ id: '1', fileName: 'a.pdf', status: 'processing' }];
-    mockList.mockResolvedValueOnce(docs);
+	it('fetches all documents on mount', async () => {
+		const docs = [{ id: '1', fileName: 'a.pdf', status: 'processing' }];
 
-    const { result } = renderHook(() => useAdminDocuments());
+		mockList.mockResolvedValueOnce(docs);
 
-    await waitFor(() => expect(result.current.documents).toEqual(docs));
-    expect(mockList).toHaveBeenCalledWith(undefined);
-  });
+		const { result } = renderHook(() => useAdminDocuments());
 
-  it('re-fetches when status filter changes', async () => {
-    const all = [{ id: '1', status: 'verified' }, { id: '2', status: 'inconclusive' }];
-    const filtered = [{ id: '2', status: 'inconclusive' }];
-    mockList.mockResolvedValueOnce(all).mockResolvedValueOnce(filtered);
+		await waitFor(() => expect(result.current.documents).toEqual(docs));
 
-    const { result, rerender } = renderHook(({ status }) => useAdminDocuments(status), {
-      initialProps: { status: undefined as string | undefined },
-    });
+		expect(mockList).toHaveBeenCalledWith(undefined);
+	});
 
-    await waitFor(() => expect(result.current.documents).toEqual(all));
-    expect(mockList).toHaveBeenCalledWith(undefined);
+	it('re-fetches when status filter changes', async () => {
+		const all = [
+			{ id: '1', status: 'verified' },
+			{ id: '2', status: 'inconclusive' },
+		];
+		const filtered = [{ id: '2', status: 'inconclusive' }];
 
-    rerender({ status: 'inconclusive' });
+		mockList.mockResolvedValueOnce(all).mockResolvedValueOnce(filtered);
 
-    await waitFor(() => expect(result.current.documents).toEqual(filtered));
-    expect(mockList).toHaveBeenCalledWith('inconclusive');
-  });
+		const { result, rerender } = renderHook(({ status }) => useAdminDocuments(status), {
+			initialProps: { status: undefined as string | undefined },
+		});
+
+		await waitFor(() => expect(result.current.documents).toEqual(all));
+
+		expect(mockList).toHaveBeenCalledWith(undefined);
+
+		rerender({ status: 'inconclusive' });
+
+		await waitFor(() => expect(result.current.documents).toEqual(filtered));
+
+		expect(mockList).toHaveBeenCalledWith('inconclusive');
+	});
 });

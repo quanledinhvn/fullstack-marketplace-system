@@ -2,7 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../api/documents.api', () => ({
-  uploadDocument: vi.fn(),
+	uploadDocument: vi.fn(),
 }));
 
 import { uploadDocument } from '../api/documents.api';
@@ -14,64 +14,99 @@ const mockRefresh = vi.fn();
 afterEach(() => vi.clearAllMocks());
 
 describe('useUploadDocument', () => {
-  it('calls uploadDocument and then refresh on success', async () => {
-    const doc = { id: '1', fileName: 'a.pdf', status: 'PROCESSING' };
-    mockUpload.mockResolvedValueOnce(doc);
+	it('calls uploadDocument and then refresh on success', async () => {
+		const doc = { id: '1', fileName: 'a.pdf', status: 'PROCESSING' };
 
-    const { result } = renderHook(() => useUploadDocument(mockRefresh));
+		mockUpload.mockResolvedValueOnce(doc);
 
-    await act(async () => {
-      await result.current.upload({ fileName: 'a.pdf', fileSize: 100, mimeType: 'application/pdf' });
-    });
+		const { result } = renderHook(() => useUploadDocument(mockRefresh));
 
-    expect(mockUpload).toHaveBeenCalledWith({ fileName: 'a.pdf', fileSize: 100, mimeType: 'application/pdf' });
-    expect(mockRefresh).toHaveBeenCalledTimes(1);
-  });
+		await act(async () => {
+			await result.current.upload({
+				fileName: 'a.pdf',
+				fileSize: 100,
+				mimeType: 'application/pdf',
+			});
+		});
 
-  it('sets loading true during upload', async () => {
-    let resolveUpload!: () => void;
-    mockUpload.mockReturnValueOnce(new Promise((r) => { resolveUpload = () => r({ id: '1' }); }));
+		expect(mockUpload).toHaveBeenCalledWith({
+			fileName: 'a.pdf',
+			fileSize: 100,
+			mimeType: 'application/pdf',
+		});
 
-    const { result } = renderHook(() => useUploadDocument(mockRefresh));
+		expect(mockRefresh).toHaveBeenCalledTimes(1);
+	});
 
-    act(() => {
-      result.current.upload({ fileName: 'a.pdf', fileSize: 100, mimeType: 'application/pdf' });
-    });
+	it('sets loading true during upload', async () => {
+		let resolveUpload!: () => void;
 
-    await waitFor(() => expect(result.current.loading).toBe(true));
+		mockUpload.mockReturnValueOnce(
+			new Promise((r) => {
+				resolveUpload = () => r({ id: '1' });
+			}),
+		);
 
-    await act(async () => { resolveUpload(); });
-    await waitFor(() => expect(result.current.loading).toBe(false));
-  });
+		const { result } = renderHook(() => useUploadDocument(mockRefresh));
 
-  it('sets error on failure without leaking internal details', async () => {
-    mockUpload.mockRejectedValueOnce(new Error('Internal server error with stack trace'));
+		act(() => {
+			result.current.upload({ fileName: 'a.pdf', fileSize: 100, mimeType: 'application/pdf' });
+		});
 
-    const { result } = renderHook(() => useUploadDocument(mockRefresh));
+		await waitFor(() => expect(result.current.loading).toBe(true));
 
-    await act(async () => {
-      await result.current.upload({ fileName: 'a.pdf', fileSize: 100, mimeType: 'application/pdf' });
-    });
+		await act(async () => {
+			resolveUpload();
+		});
 
-    expect(result.current.error).toBeTruthy();
-    expect(result.current.error).not.toContain('stack trace');
-    expect(mockRefresh).not.toHaveBeenCalled();
-  });
+		await waitFor(() => expect(result.current.loading).toBe(false));
+	});
 
-  it('clears error on subsequent successful upload', async () => {
-    mockUpload.mockRejectedValueOnce(new Error('fail'));
-    mockUpload.mockResolvedValueOnce({ id: '1' });
+	it('sets error on failure without leaking internal details', async () => {
+		mockUpload.mockRejectedValueOnce(new Error('Internal server error with stack trace'));
 
-    const { result } = renderHook(() => useUploadDocument(mockRefresh));
+		const { result } = renderHook(() => useUploadDocument(mockRefresh));
 
-    await act(async () => {
-      await result.current.upload({ fileName: 'a.pdf', fileSize: 100, mimeType: 'application/pdf' });
-    });
-    expect(result.current.error).toBeTruthy();
+		await act(async () => {
+			await result.current.upload({
+				fileName: 'a.pdf',
+				fileSize: 100,
+				mimeType: 'application/pdf',
+			});
+		});
 
-    await act(async () => {
-      await result.current.upload({ fileName: 'a.pdf', fileSize: 100, mimeType: 'application/pdf' });
-    });
-    expect(result.current.error).toBeNull();
-  });
+		expect(result.current.error).toBeTruthy();
+
+		expect(result.current.error).not.toContain('stack trace');
+
+		expect(mockRefresh).not.toHaveBeenCalled();
+	});
+
+	it('clears error on subsequent successful upload', async () => {
+		mockUpload.mockRejectedValueOnce(new Error('fail'));
+
+		mockUpload.mockResolvedValueOnce({ id: '1' });
+
+		const { result } = renderHook(() => useUploadDocument(mockRefresh));
+
+		await act(async () => {
+			await result.current.upload({
+				fileName: 'a.pdf',
+				fileSize: 100,
+				mimeType: 'application/pdf',
+			});
+		});
+
+		expect(result.current.error).toBeTruthy();
+
+		await act(async () => {
+			await result.current.upload({
+				fileName: 'a.pdf',
+				fileSize: 100,
+				mimeType: 'application/pdf',
+			});
+		});
+
+		expect(result.current.error).toBeNull();
+	});
 });

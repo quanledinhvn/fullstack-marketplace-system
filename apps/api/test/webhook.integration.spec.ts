@@ -17,17 +17,21 @@ describe('POST /api/internal/webhook (integration)', () => {
 				role: 'SELLER',
 			},
 		});
+
 		testUserId = user.id;
 	});
 
 	afterAll(async () => {
 		await prisma.auditLog.deleteMany({ where: { document: { userId: testUserId } } });
+
 		await prisma.document.deleteMany({ where: { userId: testUserId } });
+
 		await prisma.user.delete({ where: { id: testUserId } });
 	});
 
 	afterEach(async () => {
 		await prisma.auditLog.deleteMany({ where: { document: { userId: testUserId } } });
+
 		await prisma.document.deleteMany({ where: { userId: testUserId } });
 	});
 
@@ -53,12 +57,17 @@ describe('POST /api/internal/webhook (integration)', () => {
 			.expect(200);
 
 		const updated = await prisma.document.findUnique({ where: { id: doc.id } });
+
 		expect(updated?.status).toBe('VERIFIED');
 
 		const logs = await prisma.auditLog.findMany({ where: { documentId: doc.id } });
+
 		expect(logs).toHaveLength(1);
+
 		expect(logs[0]?.prevStatus).toBe('PROCESSING');
+
 		expect(logs[0]?.nextStatus).toBe('VERIFIED');
+
 		expect(logs[0]?.actorType).toBe('SYSTEM');
 	});
 
@@ -71,12 +80,17 @@ describe('POST /api/internal/webhook (integration)', () => {
 			.expect(200);
 
 		const updated = await prisma.document.findUnique({ where: { id: doc.id } });
+
 		expect(updated?.status).toBe('REJECTED');
 
 		const logs = await prisma.auditLog.findMany({ where: { documentId: doc.id } });
+
 		expect(logs).toHaveLength(1);
+
 		expect(logs[0]?.prevStatus).toBe('PROCESSING');
+
 		expect(logs[0]?.nextStatus).toBe('REJECTED');
+
 		expect(logs[0]?.actorType).toBe('SYSTEM');
 	});
 
@@ -89,11 +103,15 @@ describe('POST /api/internal/webhook (integration)', () => {
 			.expect(200);
 
 		const updated = await prisma.document.findUnique({ where: { id: doc.id } });
+
 		expect(updated?.status).toBe('INCONCLUSIVE');
 
 		const logs = await prisma.auditLog.findMany({ where: { documentId: doc.id } });
+
 		expect(logs).toHaveLength(1);
+
 		expect(logs[0]?.nextStatus).toBe('INCONCLUSIVE');
+
 		expect(logs[0]?.actorType).toBe('SYSTEM');
 	});
 
@@ -106,9 +124,11 @@ describe('POST /api/internal/webhook (integration)', () => {
 			.expect(200);
 
 		const after = await prisma.document.findUnique({ where: { id: doc.id } });
+
 		expect(after?.status).toBe('VERIFIED');
 
 		const logs = await prisma.auditLog.findMany({ where: { documentId: doc.id } });
+
 		expect(logs).toHaveLength(0);
 	});
 

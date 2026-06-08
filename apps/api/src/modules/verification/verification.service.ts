@@ -26,7 +26,9 @@ export class VerificationService {
 	) {
 		const base = config.get<string>('VERIFICATION_SERVICE_URL', 'http://localhost:3001');
 		const api = config.get<string>('API_URL', 'http://localhost:3000');
+
 		this.verifyUrl = `${base}/verify`;
+
 		this.callbackUrl = `${api}/api/internal/webhook`;
 	}
 
@@ -45,6 +47,7 @@ export class VerificationService {
 		);
 
 		if (res.status === 429) throw new RateLimitError();
+
 		if (res.status >= 500) throw new ServiceError();
 
 		return res.data;
