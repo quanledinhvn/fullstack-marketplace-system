@@ -2,11 +2,11 @@ import {
 	type CanActivate,
 	type ExecutionContext,
 	Injectable,
-	UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../../database/prisma.service';
 import { PUBLIC_KEY } from '../decorators';
+import { AppUnauthorizedException } from '../exceptions';
 
 @Injectable()
 export class UserIdGuard implements CanActivate {
@@ -29,12 +29,12 @@ export class UserIdGuard implements CanActivate {
 		const authHeader = request.headers.authorization;
 
 		if (!authHeader) {
-			throw new UnauthorizedException('Missing Authorization header');
+			throw new AppUnauthorizedException('Missing Authorization header');
 		}
 
 		const userId = authHeader.trim();
 		if (!userId) {
-			throw new UnauthorizedException('Invalid Authorization header');
+			throw new AppUnauthorizedException('Invalid Authorization header');
 		}
 
 		const user = await (this.prisma.user.findUnique({
@@ -42,7 +42,7 @@ export class UserIdGuard implements CanActivate {
 		}) as any);
 
 		if (!user) {
-			throw new UnauthorizedException('User not found');
+			throw new AppUnauthorizedException('User not found');
 		}
 
 		request.user = user;

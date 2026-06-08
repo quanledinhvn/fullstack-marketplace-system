@@ -1,4 +1,5 @@
-import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { AppNotFoundException, AppNotAllowedException } from '../../common/exceptions';
 import { InjectQueue } from '@nestjs/bullmq';
 import type { Queue } from 'bullmq';
 import { DocumentStatus } from '@prisma/client';
@@ -54,8 +55,8 @@ export class DocumentsService {
 
 	async findOne(userId: string, id: string): Promise<Document> {
 		const doc = await this.repo.findById(id);
-		if (!doc) throw new NotFoundException('Document not found');
-		if (doc.userId !== userId) throw new ForbiddenException('Access denied');
+		if (!doc) throw new AppNotFoundException('Document not found');
+		if (doc.userId !== userId) throw new AppNotAllowedException('Access denied');
 		return doc;
 	}
 }

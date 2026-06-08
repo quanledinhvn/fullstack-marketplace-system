@@ -1,11 +1,11 @@
 import {
 	type CanActivate,
 	type ExecutionContext,
-	ForbiddenException,
 	Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators';
+import { AppNotAllowedException } from '../exceptions';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -25,11 +25,11 @@ export class RolesGuard implements CanActivate {
 		const user = request.user;
 
 		if (!user) {
-			throw new ForbiddenException('User not found in request');
+			throw new AppNotAllowedException('User not found in request');
 		}
 
 		if (!requiredRoles.includes(user.role.toLowerCase())) {
-			throw new ForbiddenException(`Forbidden: requires one of [${requiredRoles.join(', ')}]`);
+			throw new AppNotAllowedException(`Forbidden: requires one of [${requiredRoles.join(', ')}]`);
 		}
 
 		return true;
