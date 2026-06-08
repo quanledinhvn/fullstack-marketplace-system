@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { Inject } from '@nestjs/common';
 import { WorkerHost } from '@nestjs/bullmq';
 import type { Job } from 'bullmq';
@@ -11,8 +12,8 @@ export abstract class BaseProcessor<T = unknown, R = unknown> extends WorkerHost
 		super();
 	}
 
-	async process(job: Job<T>): Promise<R> {
-		const traceId = crypto.randomUUID();
+	override async process(job: Job<T>, token?: string): Promise<R> {
+		const traceId = randomUUID();
 		const start = Date.now();
 
 		this.logger.info('Starting job', {
@@ -23,7 +24,7 @@ export abstract class BaseProcessor<T = unknown, R = unknown> extends WorkerHost
 		});
 
 		try {
-			const result = await this.execute(job, traceId);
+			const result = await this.execute(job, traceId, token);
 
 			this.logger.info('Completed job', {
 				traceId,
@@ -38,7 +39,7 @@ export abstract class BaseProcessor<T = unknown, R = unknown> extends WorkerHost
 		}
 	}
 
-	protected abstract execute(job: Job<T>, traceId: string): Promise<R>;
+	protected abstract execute(job: Job<T>, traceId: string, token?: string): Promise<R>;
 
 	private handleError(
 		err: unknown,
@@ -57,6 +58,7 @@ export abstract class BaseProcessor<T = unknown, R = unknown> extends WorkerHost
 		this.logger.error('Job failed with system error (will retry)', {
 			...meta,
 			error: err instanceof Error ? err.message : String(err),
+			stack: err instanceof Error ? err.stack : undefined,
 		});
 		throw err;
 	}
