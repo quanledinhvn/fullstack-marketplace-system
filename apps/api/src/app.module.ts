@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { WinstonModule } from 'nest-winston';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { logConfig } from './config/log.config';
+import { GlobalHandleExceptionFilter } from './common/filters/exception.filter';
 import { RolesGuard, UserIdGuard } from './common/guards';
 import { PrismaModule } from './database/prisma.module';
 import { HealthModule } from './health/health.module';
@@ -16,7 +19,12 @@ import { BullModule } from '@nestjs/bullmq';
 
 @Module({
 	imports: [
-		ConfigModule.forRoot({ isGlobal: true }),
+		ConfigModule.forRoot({ isGlobal: true, load: [logConfig] }),
+		WinstonModule.forRootAsync({
+			imports: [ConfigModule],
+			useFactory: (config: ConfigService) => config.get('log')!,
+			inject: [ConfigService],
+		}),
 		BullModule.forRootAsync({
 			imports: [ConfigModule],
 			useFactory: (config: ConfigService) => ({
@@ -38,6 +46,10 @@ import { BullModule } from '@nestjs/bullmq';
 	controllers: [AppController],
 	providers: [
 		AppService,
+		{
+			provide: APP_FILTER,
+			useClass: GlobalHandleExceptionFilter,
+		},
 		{
 			provide: APP_GUARD,
 			useClass: UserIdGuard,
