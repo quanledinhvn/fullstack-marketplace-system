@@ -16,7 +16,7 @@ function prepareResponse(statusCode: number, message: string, data?: unknown): A
 }
 
 export class AppException extends HttpException {
-  constructor(statusCode: number, message: string, data?: unknown) {
+  protected constructor(statusCode: number, message: string, data?: unknown) {
     super(prepareResponse(statusCode, message, data), statusCode);
   }
 }
@@ -28,11 +28,20 @@ export class AppBadRequestException extends AppException {
 
   static fromValidationErrors(errors: ValidationError[]): AppBadRequestException {
     const data: Record<string, Record<string, string>> = {};
-    for (const err of errors) {
-      if (err.constraints) {
-        data[err.property] = err.constraints;
+
+    function flatten(errs: ValidationError[], prefix: string): void {
+      for (const err of errs) {
+        const key = prefix ? `${prefix}.${err.property}` : err.property;
+        if (err.constraints) {
+          data[key] = err.constraints;
+        }
+        if (err.children && err.children.length > 0) {
+          flatten(err.children, key);
+        }
       }
     }
+
+    flatten(errors, '');
     return new AppBadRequestException('Validation failed', data);
   }
 }
