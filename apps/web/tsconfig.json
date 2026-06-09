@@ -1,7 +1,7 @@
 {
 	"extends": "../../tooling/typescript/tsconfig.react.json",
 	"compilerOptions": {
-		"ignoreDeprecations": "5.0",
+		"ignoreDeprecations": "6.0",
 		"outDir": "dist",
 		"rootDir": "src",
 		"types": ["vite/client"],
