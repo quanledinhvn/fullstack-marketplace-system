@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { useDocuments } from '../hooks/use-documents';
 import { DocumentsTable } from './documents-table';
 import { UploadDocumentDialog } from './upload-document-dialog';
@@ -8,12 +9,10 @@ export function SellerDocumentsPage() {
 	const [dialogOpen, setDialogOpen] = useState(false);
 
 	return (
-		<div className="page">
-			<div className="page-header">
-				<h1 className="page-title">My Documents</h1>
-				<button className="btn-primary" onClick={() => setDialogOpen(true)}>
-					+ Upload
-				</button>
+		<div className="space-y-4">
+			<div className="flex items-center justify-between">
+				<h1 className="text-2xl font-semibold">My Documents</h1>
+				<Button onClick={() => setDialogOpen(true)}>+ Upload</Button>
 			</div>
 
 			<DocumentsTable documents={documents} />

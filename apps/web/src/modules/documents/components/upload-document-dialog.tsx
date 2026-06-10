@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { uploadFileSchema } from '../schemas/document.schema';
 import type { UploadDocumentBody } from '../api/documents.api';
 import { uploadDocument } from '../api/documents.api';
@@ -20,7 +21,6 @@ export function UploadDocumentDialog({
 	const [validationError, setValidationError] = useState<string | null>(null);
 	const [uploadError, setUploadError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
-	const inputRef = useRef<HTMLInputElement>(null);
 
 	if (!open) return null;
 
@@ -77,49 +77,55 @@ export function UploadDocumentDialog({
 	}
 
 	return (
-		<div className="dialog-overlay" role="dialog" aria-modal="true" onClick={handleOverlayClick}>
-			<div className="dialog">
-				<div className="dialog-header">
-					<span className="dialog-title">Upload document</span>
-					<button className="btn-close" onClick={onClose} aria-label="Close">
+		<div
+			className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+			role="dialog"
+			aria-modal="true"
+			onClick={handleOverlayClick}
+		>
+			<div className="relative w-full max-w-lg rounded-lg border bg-background p-6 shadow-lg">
+				<div className="mb-4 flex items-center justify-between">
+					<h2 className="text-lg font-semibold">Upload document</h2>
+					<button
+						type="button"
+						className="rounded-sm opacity-70 transition-opacity hover:opacity-100"
+						onClick={onClose}
+						aria-label="Close"
+					>
 						✕
 					</button>
 				</div>
 
-				<form onSubmit={handleSubmit}>
-					<div className="field">
-						<label>File</label>
-						<div className="file-drop" onClick={() => inputRef.current?.click()}>
-							<input
-								ref={inputRef}
-								type="file"
-								accept=".pdf,.jpg,.jpeg,.png"
-								onChange={handleFileChange}
-							/>
-							<div className="file-drop-icon">📄</div>
-							<div>Tap to select file</div>
-							<div className="file-drop-hint">PDF, JPG, PNG · max 10 MB</div>
-						</div>
-						{file && <div className="file-selected">Selected: {file.name}</div>}
+				<form onSubmit={handleSubmit} className="space-y-4">
+					<div className="space-y-2">
+						<label htmlFor="file-upload" className="text-sm font-medium leading-none">
+							File
+						</label>
+						<input
+							id="file-upload"
+							type="file"
+							accept=".pdf,.jpg,.jpeg,.png"
+							onChange={handleFileChange}
+							className="block w-full cursor-pointer text-sm text-foreground file:mr-4 file:rounded file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium hover:file:bg-secondary/80"
+						/>
+						{file && (
+							<p className="text-sm text-muted-foreground">Selected: {file.name}</p>
+						)}
 						{validationError && (
-							<p style={{ color: 'var(--error)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-								{validationError}
-							</p>
+							<p className="text-sm text-destructive">{validationError}</p>
 						)}
 						{uploadError && (
-							<p style={{ color: 'var(--error)', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-								{uploadError}
-							</p>
+							<p className="text-sm text-destructive">{uploadError}</p>
 						)}
 					</div>
 
-					<div className="dialog-actions">
-						<button type="button" className="btn-ghost" onClick={onClose}>
+					<div className="flex justify-end gap-2">
+						<Button type="button" variant="outline" onClick={onClose}>
 							Cancel
-						</button>
-						<button type="submit" className="btn-primary" disabled={!file || loading}>
+						</Button>
+						<Button type="submit" disabled={!file || loading}>
 							{loading ? 'Uploading…' : 'Upload'}
-						</button>
+						</Button>
 					</div>
 				</form>
 			</div>

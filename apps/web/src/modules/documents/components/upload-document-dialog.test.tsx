@@ -30,7 +30,7 @@ describe('UploadDocumentDialog', () => {
 	});
 
 	it('shows error for unsupported file type', async () => {
-		const user = userEvent.setup();
+		const user = userEvent.setup({ applyAccept: false });
 
 		render(<UploadDocumentDialog open onClose={onClose} onSuccess={onSuccess} />);
 
