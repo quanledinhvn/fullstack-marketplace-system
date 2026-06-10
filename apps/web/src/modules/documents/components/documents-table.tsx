@@ -60,28 +60,30 @@ export function DocumentsTable({ documents }: Props) {
 
 	return (
 		<div className="max-w-3xl mx-auto">
-		<Table>
-			<TableHeader>
-				<TableRow>
-					<TableHead>File name</TableHead>
-					<TableHead>Size</TableHead>
-					<TableHead>Status</TableHead>
-					<TableHead>Uploaded</TableHead>
-				</TableRow>
-			</TableHeader>
-			<TableBody>
-				{documents.map((doc) => (
-					<TableRow key={doc.id}>
-						<TableCell className="font-medium">{doc.fileName}</TableCell>
-						<TableCell className="text-muted-foreground">{formatFileSize(doc.fileSize)}</TableCell>
-						<TableCell>
-							<Badge variant={STATUS_VARIANT[doc.status]}>{STATUS_LABEL[doc.status]}</Badge>
-						</TableCell>
-						<TableCell className="text-muted-foreground">{formatDate(doc.createdAt)}</TableCell>
+			<Table>
+				<TableHeader>
+					<TableRow>
+						<TableHead>File name</TableHead>
+						<TableHead>Size</TableHead>
+						<TableHead>Status</TableHead>
+						<TableHead>Uploaded</TableHead>
 					</TableRow>
-				))}
-			</TableBody>
-		</Table>
+				</TableHeader>
+				<TableBody>
+					{documents.map((doc) => (
+						<TableRow key={doc.id}>
+							<TableCell className="font-medium">{doc.fileName}</TableCell>
+							<TableCell className="text-muted-foreground">
+								{formatFileSize(doc.fileSize)}
+							</TableCell>
+							<TableCell>
+								<Badge variant={STATUS_VARIANT[doc.status]}>{STATUS_LABEL[doc.status]}</Badge>
+							</TableCell>
+							<TableCell className="text-muted-foreground">{formatDate(doc.createdAt)}</TableCell>
+						</TableRow>
+					))}
+				</TableBody>
+			</Table>
 		</div>
 	);
 }

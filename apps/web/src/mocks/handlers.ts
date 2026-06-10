@@ -49,6 +49,7 @@ export const handlers = [
 	http.post(`${BASE}/auth/login`, async ({ request }) => {
 		const { email } = (await request.json()) as { email: string; password: string };
 		const user = email.includes('admin') ? mockUsers.admin : mockUsers.seller;
+
 		return HttpResponse.json(user);
 	}),
 
@@ -73,7 +74,9 @@ export const handlers = [
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		};
+
 		mockDocs.push(newDoc);
+
 		return HttpResponse.json(newDoc, { status: 201 });
 	}),
 
@@ -84,6 +87,7 @@ export const handlers = [
 			sellerEmail: 'seller@demo.com',
 		}));
 		const result = status ? allDocs.filter((d) => d.status === status) : allDocs;
+
 		return HttpResponse.json(result);
 	}),
 ];

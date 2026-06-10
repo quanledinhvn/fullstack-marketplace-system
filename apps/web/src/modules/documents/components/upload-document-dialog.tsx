@@ -108,15 +108,9 @@ export function UploadDocumentDialog({
 							onChange={handleFileChange}
 							className="block w-full cursor-pointer text-sm text-foreground file:mr-4 file:rounded file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium hover:file:bg-secondary/80"
 						/>
-						{file && (
-							<p className="text-sm text-muted-foreground">Selected: {file.name}</p>
-						)}
-						{validationError && (
-							<p className="text-sm text-destructive">{validationError}</p>
-						)}
-						{uploadError && (
-							<p className="text-sm text-destructive">{uploadError}</p>
-						)}
+						{file && <p className="text-sm text-muted-foreground">Selected: {file.name}</p>}
+						{validationError && <p className="text-sm text-destructive">{validationError}</p>}
+						{uploadError && <p className="text-sm text-destructive">{uploadError}</p>}
 					</div>
 
 					<div className="flex justify-end gap-2">
