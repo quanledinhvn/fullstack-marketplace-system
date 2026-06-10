@@ -35,6 +35,7 @@ export function AdminDocumentsTable({ documents }: Props) {
   }
 
   return (
+    <div className="max-w-3xl mx-auto">
     <Table>
       <TableHeader>
         <TableRow>
@@ -57,5 +58,6 @@ export function AdminDocumentsTable({ documents }: Props) {
         ))}
       </TableBody>
     </Table>
+    </div>
   );
 }

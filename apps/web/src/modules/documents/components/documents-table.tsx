@@ -59,6 +59,7 @@ export function DocumentsTable({ documents }: Props) {
 	}
 
 	return (
+		<div className="max-w-3xl mx-auto">
 		<Table>
 			<TableHeader>
 				<TableRow>
@@ -81,5 +82,6 @@ export function DocumentsTable({ documents }: Props) {
 				))}
 			</TableBody>
 		</Table>
+		</div>
 	);
 }
