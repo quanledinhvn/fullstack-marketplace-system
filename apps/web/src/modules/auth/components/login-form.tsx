@@ -1,83 +1,103 @@
 import { isAxiosError } from 'axios';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { loginSchema, type TLoginForm } from '../schemas/auth.schema';
 import { authApi } from '../api/auth.api';
 import { useAuthStore } from '../stores/auth.store';
 
 export function LoginForm() {
-	const [email, setEmail] = useState('');
-	const [password, setPassword] = useState('');
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState('');
-	const navigate = useNavigate();
-	const setUser = useAuthStore((state) => state.setUser);
+  const [serverError, setServerError] = useState('');
+  const navigate = useNavigate();
+  const setUser = useAuthStore((state) => state.setUser);
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+  const form = useForm<TLoginForm>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
+  });
 
-		setLoading(true);
+  const { isSubmitting } = form.formState;
 
-		setError('');
+  const handleSubmit = async (data: TLoginForm) => {
+    setServerError('');
 
-		try {
-			const response = await authApi.login({ email, password });
+    try {
+      const response = await authApi.login(data);
 
-			setUser({
-				userId: response.userId,
-				role: response.role as 'seller' | 'admin',
-				name: response.name,
-				email: response.email,
-			});
+      setUser({
+        userId: response.userId,
+        role: response.role as 'seller' | 'admin',
+        name: response.name,
+        email: response.email,
+      });
 
-			if (response.role === 'seller') {
-				await navigate({ to: '/seller/documents' });
-			} else if (response.role === 'admin') {
-				await navigate({ to: '/admin/documents' });
-			}
-		} catch (err: unknown) {
-			const message = isAxiosError(err)
-				? (err.response?.data as { message?: string })?.message
-				: undefined;
+      if (response.role === 'seller') {
+        await navigate({ to: '/seller/documents' });
+      } else if (response.role === 'admin') {
+        await navigate({ to: '/admin/documents' });
+      }
+    } catch (err: unknown) {
+      const message = isAxiosError(err)
+        ? (err.response?.data as { message?: string })?.message
+        : undefined;
 
-			setError(message || 'Invalid email or password');
-		} finally {
-			setLoading(false);
-		}
-	};
+      setServerError(message || 'Invalid email or password');
+    }
+  };
 
-	return (
-		<div className="card">
-			<div className="logo">DocVerify</div>
-			<div className="subtitle">Document Verification Platform</div>
+  return (
+    <Card className="w-full max-w-sm">
+      <CardHeader>
+        <CardTitle>DocVerify</CardTitle>
+        <CardDescription>Document Verification Platform</CardDescription>
+      </CardHeader>
 
-			<form onSubmit={handleSubmit}>
-				<div className="field">
-					<label htmlFor="email">Email</label>
-					<input
-						id="email"
-						type="email"
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
-						disabled={loading}
-					/>
-				</div>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" disabled={isSubmitting} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-				<div className="field">
-					<label htmlFor="password">Password</label>
-					<input
-						id="password"
-						type="password"
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-						disabled={loading}
-					/>
-					{error && <div className="field-error">{error}</div>}
-				</div>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" disabled={isSubmitting} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-				<button type="submit" disabled={loading}>
-					{loading ? 'Signing in...' : 'Sign in'}
-				</button>
-			</form>
-		</div>
-	);
+            {serverError && (
+              <p className="text-sm text-destructive">{serverError}</p>
+            )}
+
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? 'Signing in...' : 'Sign in'}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
 }
